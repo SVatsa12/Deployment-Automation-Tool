@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel, HttpUrl
@@ -10,6 +10,7 @@ from app.models.run import WorkflowRun
 from app.models.step import StepRun
 from app.engine.engine import run_workflow
 from app.engine.sample_steps import BuildStep, TestStep, ApprovalStep, DeployStep
+from app.engine.deployment_steps import create_deployment_workflow, update_step_context
 from app.utils.github_analyzer import GitHubAnalyzer
 from app.utils.platform_deployers import DeployerFactory
 
@@ -28,6 +29,7 @@ def get_db():
 # Pydantic models for request/response
 class WorkflowCreate(BaseModel):
     name: str
+    description: Optional[str] = None
     workflow_type: str = "demo"  # For now, only demo workflow
 
 
@@ -86,7 +88,11 @@ def create_workflow(workflow: WorkflowCreate, db: Session = Depends(get_db)):
     existing_workflow = db.query(Workflow).filter(Workflow.name == workflow.name).first()
     
     if not existing_workflow:
-        existing_workflow = Workflow(name=workflow.name)
+        existing_workflow = Workflow(
+            name=workflow.name,
+            description=workflow.description,
+            workflow_type=workflow.workflow_type
+        )
         db.add(existing_workflow)
         db.commit()
         db.refresh(existing_workflow)
@@ -289,10 +295,55 @@ def analyze_github_repo(request: AnalyzeRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/deploy")
-def deploy_to_platform(request: DeployRequest):
+def run_deployment_workflow(workflow_run_id: int, github_url: str, platform_id: str, 
+                           branch: str, project_name: str):
     """
-    Deploy a GitHub repository to selected platform
+    Background task to run deployment workflow
+    """
+    db = SessionLocal()
+    try:
+        # Get workflow run
+        workflow_run = db.query(WorkflowRun).filter(WorkflowRun.id == workflow_run_id).first()
+        if not workflow_run:
+            print(f"Workflow run {workflow_run_id} not found")
+            return
+        
+        # Create deployment workflow steps
+        steps, context = create_deployment_workflow(
+            github_url=github_url,
+            platform_id=platform_id,
+            branch=branch,
+            project_name=project_name
+        )
+        
+        print(f"Starting deployment workflow {workflow_run_id} with {len(steps)} steps")
+        
+        # Run the workflow (this will execute all steps)
+        run_workflow(workflow_run, steps, db=db)
+        
+        # Update context with results from steps
+        update_step_context(steps, context)
+        
+        # Store deployment URL in workflow metadata if available
+        if context.get("deployment_url"):
+            print(f"Deployment successful! URL: {context['deployment_url']}")
+        
+        print(f"Deployment workflow {workflow_run_id} completed with status: {workflow_run.status}")
+        
+    except Exception as e:
+        print(f"Error in deployment workflow {workflow_run_id}: {str(e)}")
+        if workflow_run:
+            workflow_run.status = "FAILED"
+            db.commit()
+    finally:
+        db.close()
+
+
+@router.post("/deploy")
+def deploy_to_platform(request: DeployRequest, background_tasks: BackgroundTasks, 
+                      db: Session = Depends(get_db)):
+    """
+    Deploy a GitHub repository to selected platform (ASYNC)
     
     Input:
     - github_url: GitHub repository URL
@@ -300,15 +351,14 @@ def deploy_to_platform(request: DeployRequest):
     - branch: Git branch to deploy (default: main)
     - project_name: Optional project name
     
-    Returns deployment status and URL
+    Returns workflow_run_id immediately, deployment runs in background
     """
     try:
         github_url = str(request.github_url)
         platform_id = request.platform_id.lower()
         
-        # Get deployer for platform
+        # Validate platform
         deployer = DeployerFactory.get_deployer(platform_id)
-        
         if not deployer:
             supported = DeployerFactory.get_supported_platforms()
             raise HTTPException(
@@ -316,25 +366,43 @@ def deploy_to_platform(request: DeployRequest):
                 detail=f"Platform '{platform_id}' not supported. Supported platforms: {', '.join(supported)}"
             )
         
-        # Deploy to platform
-        deployment_result = deployer.deploy(
+        # Create workflow in database
+        workflow = Workflow(
+            name=f"Deploy to {platform_id}",
+            description=f"Deploying {github_url} to {platform_id}",
+            workflow_type="deployment"
+        )
+        db.add(workflow)
+        db.commit()
+        db.refresh(workflow)
+        
+        # Create workflow run
+        workflow_run = WorkflowRun(
+            workflow_id=workflow.id,
+            status="PENDING",
+            current_step="initializing"
+        )
+        db.add(workflow_run)
+        db.commit()
+        db.refresh(workflow_run)
+        
+        # Start deployment in background
+        background_tasks.add_task(
+            run_deployment_workflow,
+            workflow_run_id=workflow_run.id,
             github_url=github_url,
+            platform_id=platform_id,
             branch=request.branch,
             project_name=request.project_name or "my-app"
         )
         
-        if not deployment_result.get("success"):
-            raise HTTPException(
-                status_code=500,
-                detail=f"Deployment failed: {deployment_result.get('error', 'Unknown error')}"
-            )
-        
         return {
             "success": True,
-            "platform": deployment_result.get("platform"),
-            "deployment_url": deployment_result.get("deployment_url"),
-            "message": deployment_result.get("message"),
-            "instructions": deployment_result.get("instructions", [])
+            "workflow_run_id": workflow_run.id,
+            "status": "PENDING",
+            "message": f"Deployment started in background. Check status at /api/workflows/runs/{workflow_run.id}",
+            "status_url": f"/api/workflows/runs/{workflow_run.id}",
+            "steps_url": f"/api/workflows/runs/{workflow_run.id}/steps"
         }
         
     except HTTPException:
