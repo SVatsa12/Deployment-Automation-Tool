@@ -92,21 +92,24 @@ class GitHubAnalyzer:
         2. pyproject.toml    — TOML format, check [project].dependencies
                                and [tool.poetry].dependencies sections
         """
-        FRAMEWORK_KEYWORDS = {
-            "django":  "django",
-            "flask":   "flask",
-            "fastapi": "fastapi",
-            "tornado": "tornado",
-            "aiohttp": "aiohttp",
-            "starlette": "starlette",
-        }
+        # Order matters — more specific frameworks checked first.
+        # FastAPI must come before Flask because FastAPI repos often
+        # reference Flask in test/docs dependencies, causing false positives.
+        FRAMEWORK_KEYWORDS = [
+            ("fastapi",   "fastapi"),
+            ("django",    "django"),
+            ("starlette", "starlette"),
+            ("aiohttp",   "aiohttp"),
+            ("tornado",   "tornado"),
+            ("flask",     "flask"),
+        ]
 
         # --- requirements.txt ---
         if "requirements.txt" in file_names:
             content = GitHubAnalyzer._decode_github_file(f"{base_url}/requirements.txt")
             if content:
                 lower = content.lower()
-                for keyword, framework in FRAMEWORK_KEYWORDS.items():
+                for keyword, framework in FRAMEWORK_KEYWORDS:
                     if keyword in lower:
                         return framework
 
@@ -119,7 +122,7 @@ class GitHubAnalyzer:
                 lower = content.lower()
 
                 # First try: simple keyword scan (works for both PEP 517 and Poetry)
-                for keyword, framework in FRAMEWORK_KEYWORDS.items():
+                for keyword, framework in FRAMEWORK_KEYWORDS:
                     if keyword in lower:
                         return framework
 
@@ -162,7 +165,7 @@ class GitHubAnalyzer:
                             + [k.lower() for k in poetry_dev_deps]
                         )
 
-                        for keyword, framework in FRAMEWORK_KEYWORDS.items():
+                        for keyword, framework in FRAMEWORK_KEYWORDS:
                             if keyword in all_dep_names:
                                 return framework
 

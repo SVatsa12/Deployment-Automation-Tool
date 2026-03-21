@@ -375,15 +375,18 @@ def deploy_to_platform(
             # Derive a slug from the repo URL  e.g. "Hello-World"
             project_name = github_url.rstrip("/").split("/")[-1] or "my-app"
 
-        # Persist workflow + run records
-        workflow = Workflow(
-            name=f"Deploy to {platform_id}",
-            description=f"Deploying {github_url} to {platform_id}",
-            workflow_type="deployment",
-        )
-        db.add(workflow)
-        db.commit()
-        db.refresh(workflow)
+# Persist workflow — reuse existing to avoid UNIQUE constraint on repeated deploys
+        workflow_name = f"Deploy to {platform_id}"
+        workflow = db.query(Workflow).filter(Workflow.name == workflow_name).first()
+        if not workflow:
+            workflow = Workflow(
+                name=workflow_name,
+                description=f"Deploying {github_url} to {platform_id}",
+                workflow_type="deployment",
+            )
+            db.add(workflow)
+            db.commit()
+            db.refresh(workflow)
 
         workflow_run = WorkflowRun(
             workflow_id=workflow.id,
