@@ -3,56 +3,94 @@ Platform Deployers - Integrations with various deployment platforms
 """
 import subprocess
 import os
+import shutil
 from typing import Dict, Optional
 from abc import ABC, abstractmethod
 
 
 class PlatformDeployer(ABC):
     """Base class for platform deployers"""
-    
+
     @abstractmethod
     def deploy(self, github_url: str, branch: str = "main", **kwargs) -> Dict[str, any]:
         """Deploy to platform"""
         pass
 
+    def _find_cli(self, *candidates: str) -> Optional[str]:
+        """
+        Find a CLI executable, checking multiple candidate names.
+        On Windows, npm global CLIs are installed as .cmd wrappers
+        (e.g. 'vercel.cmd', 'netlify.cmd') which shutil.which('vercel')
+        fails to find. Checking both covers all platforms.
+        """
+        for candidate in candidates:
+            path = shutil.which(candidate)
+            if path:
+                return path
+        return None
+
 
 class VercelDeployer(PlatformDeployer):
     """Deploy to Vercel"""
-    
+
     def deploy(self, github_url: str, branch: str = "main", **kwargs) -> Dict[str, any]:
         """
-        Deploy to Vercel using Vercel CLI
-        Requires: npm install -g vercel
+        Deploy to Vercel using Vercel CLI.
+        - Must be called from the cloned repo directory (PlatformDeployStep handles os.chdir).
+        - Requires: npm install -g vercel  AND  vercel login
+        
+        FIX 1: Use _find_cli() to locate 'vercel' or 'vercel.cmd' (Windows).
+        FIX 2: Deploy CWD, NOT a GitHub URL — Vercel CLI doesn't accept URLs as args.
+        FIX 3: Use shell=True on Windows so .cmd wrappers execute correctly.
         """
         try:
-            # Check if Vercel CLI is installed
-            result = subprocess.run(["vercel", "--version"], capture_output=True, text=True)
-            if result.returncode != 0:
+            vercel_cmd = self._find_cli("vercel", "vercel.cmd")
+            if not vercel_cmd:
                 return {
                     "success": False,
-                    "error": "Vercel CLI not installed. Run: npm install -g vercel"
+                    "error": (
+                        "Vercel CLI not found in PATH. "
+                        "Install with: npm install -g vercel  "
+                        "then login with: vercel login"
+                    )
                 }
-            
-            # Deploy using GitHub integration (requires Vercel account linked)
+
+            # Sanity-check the CLI works and is authenticated
+            check = subprocess.run(
+                [vercel_cmd, "--version"],
+                capture_output=True,
+                text=True,
+                shell=True  # Required on Windows for .cmd files
+            )
+            if check.returncode != 0:
+                return {
+                    "success": False,
+                    "error": f"Vercel CLI check failed: {check.stderr.strip()}"
+                }
+
             project_name = kwargs.get("project_name", "my-app")
-            
+
+            # Deploy current working directory (already chdir'd by PlatformDeployStep)
+            # Do NOT pass github_url here — Vercel CLI deploys a local directory, not a URL.
             deployment_command = [
-                "vercel",
-                "--yes",  # Skip confirmations
+                vercel_cmd,
+                "--yes",                   # Skip interactive prompts
+                "--prod",                  # Deploy to production
                 f"--name={project_name}",
-                github_url
             ]
-            
+
             result = subprocess.run(
                 deployment_command,
                 capture_output=True,
                 text=True,
-                timeout=300
+                timeout=300,
+                shell=True  # Required on Windows for .cmd files
             )
-            
+
             if result.returncode == 0:
-                # Extract deployment URL from output
-                deployment_url = result.stdout.strip().split('\n')[-1]
+                # Last non-empty line is typically the production deployment URL
+                lines = [l.strip() for l in result.stdout.strip().splitlines() if l.strip()]
+                deployment_url = lines[-1] if lines else "https://vercel.com/dashboard"
                 return {
                     "success": True,
                     "platform": "Vercel",
@@ -62,50 +100,71 @@ class VercelDeployer(PlatformDeployer):
             else:
                 return {
                     "success": False,
-                    "error": result.stderr
+                    "error": result.stderr.strip() or result.stdout.strip()
                 }
-                
+
+        except subprocess.TimeoutExpired:
+            return {"success": False, "error": "Vercel deployment timed out after 5 minutes"}
         except Exception as e:
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
 
 class NetlifyDeployer(PlatformDeployer):
     """Deploy to Netlify"""
-    
+
     def deploy(self, github_url: str, branch: str = "main", **kwargs) -> Dict[str, any]:
         """
-        Deploy to Netlify using Netlify CLI
-        Requires: npm install -g netlify-cli
+        Deploy to Netlify using Netlify CLI.
+        - Must be called from the cloned repo directory.
+        - Requires: npm install -g netlify-cli  AND  netlify login
+
+        FIX 1: Use _find_cli() to locate 'netlify' or 'netlify.cmd' (Windows).
+        FIX 2: Use '.' as deploy dir (CWD) instead of hardcoded './build'.
+        FIX 3: Use shell=True on Windows so .cmd wrappers execute correctly.
         """
         try:
-            # Check if Netlify CLI is installed
-            result = subprocess.run(["netlify", "--version"], capture_output=True, text=True)
-            if result.returncode != 0:
+            netlify_cmd = self._find_cli("netlify", "netlify.cmd")
+            if not netlify_cmd:
                 return {
                     "success": False,
-                    "error": "Netlify CLI not installed. Run: npm install -g netlify-cli"
+                    "error": (
+                        "Netlify CLI not found in PATH. "
+                        "Install with: npm install -g netlify-cli  "
+                        "then login with: netlify login"
+                    )
                 }
-            
-            site_name = kwargs.get("site_name", "my-app")
-            
-            # Link site and deploy
+
+            check = subprocess.run(
+                [netlify_cmd, "--version"],
+                capture_output=True,
+                text=True,
+                shell=True
+            )
+            if check.returncode != 0:
+                return {
+                    "success": False,
+                    "error": f"Netlify CLI check failed: {check.stderr.strip()}"
+                }
+
+            site_name = kwargs.get("project_name", kwargs.get("site_name", "my-app"))
+
+            # Deploy CWD; use '.' so it works regardless of build output folder.
+            # If the project has a build step, add it here before deploying.
             deployment_command = [
-                "netlify", "deploy",
+                netlify_cmd, "deploy",
                 "--prod",
                 f"--site={site_name}",
-                "--dir=./build"  # Assuming build output is in ./build
+                "--dir=.",   # Deploy CWD, not a hardcoded ./build
             ]
-            
+
             result = subprocess.run(
                 deployment_command,
                 capture_output=True,
                 text=True,
-                timeout=300
+                timeout=300,
+                shell=True
             )
-            
+
             if result.returncode == 0:
                 return {
                     "success": True,
@@ -116,27 +175,23 @@ class NetlifyDeployer(PlatformDeployer):
             else:
                 return {
                     "success": False,
-                    "error": result.stderr
+                    "error": result.stderr.strip() or result.stdout.strip()
                 }
-                
+
+        except subprocess.TimeoutExpired:
+            return {"success": False, "error": "Netlify deployment timed out after 5 minutes"}
         except Exception as e:
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
 
 class RailwayDeployer(PlatformDeployer):
     """Deploy to Railway"""
-    
+
     def deploy(self, github_url: str, branch: str = "main", **kwargs) -> Dict[str, any]:
         """
-        Deploy to Railway using Railway CLI
-        Requires: Railway account and CLI installed
+        Deploy to Railway (primarily uses GitHub integration — no CLI needed).
         """
         try:
-            # Note: Railway primarily uses GitHub integration
-            # This is a simplified version
             return {
                 "success": True,
                 "platform": "Railway",
@@ -148,65 +203,72 @@ class RailwayDeployer(PlatformDeployer):
                     "3. Visit https://railway.app to manage"
                 ]
             }
-                
         except Exception as e:
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
 
 class HerokuDeployer(PlatformDeployer):
     """Deploy to Heroku"""
-    
+
     def deploy(self, github_url: str, branch: str = "main", **kwargs) -> Dict[str, any]:
         """
-        Deploy to Heroku using Heroku CLI
-        Requires: heroku CLI and logged in account
+        Deploy to Heroku using Heroku CLI.
+        - Requires: Heroku CLI installed AND heroku login
+
+        FIX: Use _find_cli() to locate 'heroku' or 'heroku.cmd' (Windows).
         """
         try:
-            app_name = kwargs.get("app_name", "my-app")
-            
-            # Create Heroku app
-            create_result = subprocess.run(
-                ["heroku", "create", app_name],
+            heroku_cmd = self._find_cli("heroku", "heroku.cmd")
+            if not heroku_cmd:
+                return {
+                    "success": False,
+                    "error": (
+                        "Heroku CLI not found in PATH. "
+                        "Install from: https://devcenter.heroku.com/articles/heroku-cli"
+                    )
+                }
+
+            app_name = kwargs.get("project_name", kwargs.get("app_name", "my-app"))
+
+            # Create Heroku app (may already exist — ignore error)
+            subprocess.run(
+                [heroku_cmd, "create", app_name],
                 capture_output=True,
-                text=True
+                text=True,
+                shell=True
             )
-            
-            # Deploy using GitHub integration
+
+            # Link remote
             deploy_result = subprocess.run(
-                ["heroku", "git:remote", "-a", app_name],
+                [heroku_cmd, "git:remote", "-a", app_name],
                 capture_output=True,
-                text=True
+                text=True,
+                shell=True
             )
-            
+
             if deploy_result.returncode == 0:
                 return {
                     "success": True,
                     "platform": "Heroku",
                     "deployment_url": f"https://{app_name}.herokuapp.com",
-                    "message": "Heroku app created. Push to deploy."
+                    "message": "Heroku app linked. Push to deploy: git push heroku main"
                 }
             else:
                 return {
                     "success": False,
-                    "error": deploy_result.stderr
+                    "error": deploy_result.stderr.strip()
                 }
-                
+
         except Exception as e:
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
 
 class RenderDeployer(PlatformDeployer):
     """Deploy to Render"""
-    
+
     def deploy(self, github_url: str, branch: str = "main", **kwargs) -> Dict[str, any]:
         """
-        Deploy to Render (primarily uses GitHub integration)
+        Deploy to Render (uses GitHub integration — no CLI needed).
         """
         return {
             "success": True,
@@ -223,22 +285,35 @@ class RenderDeployer(PlatformDeployer):
 
 class FlyDeployer(PlatformDeployer):
     """Deploy to Fly.io"""
-    
+
     def deploy(self, github_url: str, branch: str = "main", **kwargs) -> Dict[str, any]:
         """
-        Deploy to Fly.io using flyctl
+        Deploy to Fly.io using flyctl.
+        - Requires: flyctl installed AND fly auth login
+
+        FIX: Use _find_cli() to locate 'flyctl' or 'flyctl.cmd' (Windows).
         """
         try:
-            app_name = kwargs.get("app_name", "my-app")
-            
-            # Launch fly app
+            fly_cmd = self._find_cli("flyctl", "flyctl.cmd", "fly", "fly.cmd")
+            if not fly_cmd:
+                return {
+                    "success": False,
+                    "error": (
+                        "Fly CLI (flyctl) not found in PATH. "
+                        "Install from: https://fly.io/docs/hands-on/install-flyctl/"
+                    )
+                }
+
+            app_name = kwargs.get("project_name", kwargs.get("app_name", "my-app"))
+
             launch_result = subprocess.run(
-                ["flyctl", "launch", "--name", app_name, "--now"],
+                [fly_cmd, "launch", "--name", app_name, "--now"],
                 capture_output=True,
                 text=True,
-                timeout=300
+                timeout=300,
+                shell=True
             )
-            
+
             if launch_result.returncode == 0:
                 return {
                     "success": True,
@@ -249,20 +324,19 @@ class FlyDeployer(PlatformDeployer):
             else:
                 return {
                     "success": False,
-                    "error": launch_result.stderr
+                    "error": launch_result.stderr.strip() or launch_result.stdout.strip()
                 }
-                
+
+        except subprocess.TimeoutExpired:
+            return {"success": False, "error": "Fly.io deployment timed out after 5 minutes"}
         except Exception as e:
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
 
 # Platform deployer factory
 class DeployerFactory:
     """Factory to get appropriate deployer for platform"""
-    
+
     _deployers = {
         "vercel": VercelDeployer,
         "netlify": NetlifyDeployer,
@@ -271,15 +345,15 @@ class DeployerFactory:
         "render": RenderDeployer,
         "fly": FlyDeployer,
     }
-    
+
     @classmethod
     def get_deployer(cls, platform_id: str) -> Optional[PlatformDeployer]:
         """Get deployer instance for platform"""
-        deployer_class = cls._deployers.get(platform_id)
+        deployer_class = cls._deployers.get(platform_id.lower())
         if deployer_class:
             return deployer_class()
         return None
-    
+
     @classmethod
     def get_supported_platforms(cls) -> list:
         """Get list of supported platform IDs"""

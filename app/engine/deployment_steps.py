@@ -32,18 +32,31 @@ class GitCloneStep(BaseStep):
             
             print(f"Cloning {self.github_url} (branch: {self.branch}) to {self.clone_dir}")
             
-            # Clone repository
+            # Clone repository with a non-interactive shallow clone to reduce hang risk.
+            git_env = os.environ.copy()
+            git_env["GIT_TERMINAL_PROMPT"] = "0"
+            git_env["GCM_INTERACTIVE"] = "Never"
+
             result = subprocess.run(
-                ["git", "clone", "-b", self.branch, self.github_url, self.clone_dir],
+                [
+                    "git", "clone",
+                    "--depth", "1",
+                    "--single-branch",
+                    "--filter=blob:none",
+                    "-b", self.branch,
+                    self.github_url,
+                    self.clone_dir,
+                ],
                 capture_output=True,
                 text=True,
-                timeout=300  # 5 minute timeout
+                timeout=300,  # 5 minute timeout
+                env=git_env,
             )
             
             if result.returncode != 0:
                 self.output = f"Git clone failed: {result.stderr}"
                 print(self.output)
-                return StepResult.FAILURE
+                return StepResult.FAILED
             
             self.output = f"Successfully cloned to {self.clone_dir}"
             print(self.output)
@@ -52,11 +65,11 @@ class GitCloneStep(BaseStep):
         except subprocess.TimeoutExpired:
             self.output = "Git clone timeout after 5 minutes"
             print(self.output)
-            return StepResult.FAILURE
+            return StepResult.FAILED
         except Exception as e:
             self.output = f"Git clone error: {str(e)}"
             print(self.output)
-            return StepResult.FAILURE
+            return StepResult.FAILED
 
 
 class PlatformDeployStep(BaseStep):
@@ -85,7 +98,7 @@ class PlatformDeployStep(BaseStep):
             if not deployer:
                 self.output = f"Platform '{self.platform_id}' not supported"
                 print(self.output)
-                return StepResult.FAILURE
+                return StepResult.FAILED
             
             print(f"Deploying to {self.platform_id}...")
             
@@ -111,7 +124,7 @@ class PlatformDeployStep(BaseStep):
                 else:
                     self.output = f"Deployment failed: {deployment_result.get('error', 'Unknown error')}"
                     print(f"✗ {self.output}")
-                    return StepResult.FAILURE
+                    return StepResult.FAILED
                     
             finally:
                 # Return to original directory
@@ -120,7 +133,7 @@ class PlatformDeployStep(BaseStep):
         except Exception as e:
             self.output = f"Deployment error: {str(e)}"
             print(self.output)
-            return StepResult.FAILURE
+            return StepResult.FAILED
 
 
 class CleanupStep(BaseStep):

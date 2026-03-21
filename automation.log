@@ -1,0 +1,330 @@
+2026-03-21T17:22:24 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-03-21T17:22:24 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:22:24 | INFO     | sqlalchemy.engine.Engine | SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite~_%' ESCAPE '~' ORDER BY name
+2026-03-21T17:22:24 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:22:24 | INFO     | sqlalchemy.engine.Engine | PRAGMA main.table_info("workflows")
+2026-03-21T17:22:24 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:22:24 | INFO     | sqlalchemy.engine.Engine | PRAGMA main.table_info("workflow_runs")
+2026-03-21T17:22:24 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:22:24 | INFO     | sqlalchemy.engine.Engine | PRAGMA main.table_info("step_runs")
+2026-03-21T17:22:24 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:22:24 | INFO     | app.core.init_db | Database initialisation complete.
+2026-03-21T17:22:24 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:22:24 | INFO     | app.main | Database initialised successfully.
+2026-03-21T17:27:03 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-03-21T17:27:12 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-03-21T17:27:12 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:27:12 | INFO     | sqlalchemy.engine.Engine | SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite~_%' ESCAPE '~' ORDER BY name
+2026-03-21T17:27:12 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:27:12 | INFO     | sqlalchemy.engine.Engine | PRAGMA main.table_info("workflows")
+2026-03-21T17:27:12 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:27:12 | INFO     | sqlalchemy.engine.Engine | PRAGMA main.table_info("workflow_runs")
+2026-03-21T17:27:12 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:27:12 | INFO     | sqlalchemy.engine.Engine | PRAGMA main.table_info("step_runs")
+2026-03-21T17:27:12 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:27:12 | INFO     | app.core.init_db | Database initialisation complete.
+2026-03-21T17:27:12 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:27:12 | INFO     | app.main | Database initialised successfully.
+2026-03-21T17:30:40 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:30:40 | INFO     | sqlalchemy.engine.Engine | SELECT workflows.id AS workflows_id, workflows.name AS workflows_name, workflows.description AS workflows_description, workflows.workflow_type AS workflows_workflow_type, workflows.created_at AS workflows_created_at, workflows.updated_at AS workflows_updated_at 
+FROM workflows 
+WHERE workflows.name = ?
+ LIMIT ? OFFSET ?
+2026-03-21T17:30:40 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00111s] ('Test Demo', 1, 0)
+2026-03-21T17:30:40 | INFO     | sqlalchemy.engine.Engine | ROLLBACK
+2026-03-21T17:32:11 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-03-21T17:32:42 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite~_%' ESCAPE '~' ORDER BY name
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | PRAGMA main.table_info("workflows")
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | PRAGMA temp.table_info("workflows")
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | PRAGMA main.table_info("workflow_runs")
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | PRAGMA temp.table_info("workflow_runs")
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | PRAGMA main.table_info("step_runs")
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | PRAGMA temp.table_info("step_runs")
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | 
+CREATE TABLE workflows (
+	id INTEGER NOT NULL, 
+	name VARCHAR(255) NOT NULL, 
+	description VARCHAR(512), 
+	workflow_type VARCHAR(64) NOT NULL, 
+	created_at DATETIME NOT NULL, 
+	updated_at DATETIME NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT uq_workflows_name UNIQUE (name)
+)
+
+
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | [no key 0.00430s] ()
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | CREATE UNIQUE INDEX ix_workflows_name ON workflows (name)
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | [no key 0.00033s] ()
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | CREATE INDEX ix_workflows_workflow_type ON workflows (workflow_type)
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | [no key 0.00144s] ()
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | CREATE INDEX ix_workflows_type_name ON workflows (workflow_type, name)
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | [no key 0.00039s] ()
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | 
+CREATE TABLE workflow_runs (
+	id INTEGER NOT NULL, 
+	workflow_id INTEGER NOT NULL, 
+	status VARCHAR(32) NOT NULL, 
+	current_step VARCHAR(128), 
+	created_at DATETIME NOT NULL, 
+	updated_at DATETIME NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(workflow_id) REFERENCES workflows (id) ON DELETE CASCADE
+)
+
+
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | [no key 0.00059s] ()
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | CREATE INDEX ix_workflow_runs_workflow_status ON workflow_runs (workflow_id, status)
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | [no key 0.00038s] ()
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | CREATE INDEX ix_workflow_runs_workflow_id ON workflow_runs (workflow_id)
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | [no key 0.00042s] ()
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | 
+CREATE TABLE step_runs (
+	id INTEGER NOT NULL, 
+	workflow_run_id INTEGER NOT NULL, 
+	step_name VARCHAR(128) NOT NULL, 
+	status VARCHAR(32) NOT NULL, 
+	result TEXT, 
+	error_message TEXT, 
+	retry_count INTEGER NOT NULL, 
+	created_at DATETIME NOT NULL, 
+	updated_at DATETIME NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(workflow_run_id) REFERENCES workflow_runs (id) ON DELETE CASCADE
+)
+
+
+2026-03-21T17:32:42 | INFO     | sqlalchemy.engine.Engine | [no key 0.00051s] ()
+2026-03-21T17:32:43 | INFO     | sqlalchemy.engine.Engine | CREATE INDEX ix_step_runs_run_name ON step_runs (workflow_run_id, step_name)
+2026-03-21T17:32:43 | INFO     | sqlalchemy.engine.Engine | [no key 0.00030s] ()
+2026-03-21T17:32:43 | INFO     | sqlalchemy.engine.Engine | CREATE INDEX ix_step_runs_workflow_run_id ON step_runs (workflow_run_id)
+2026-03-21T17:32:43 | INFO     | sqlalchemy.engine.Engine | [no key 0.00055s] ()
+2026-03-21T17:32:43 | INFO     | sqlalchemy.engine.Engine | CREATE INDEX ix_step_runs_step_name ON step_runs (step_name)
+2026-03-21T17:32:43 | INFO     | sqlalchemy.engine.Engine | [no key 0.00047s] ()
+2026-03-21T17:32:43 | INFO     | app.core.init_db | Created tables: step_runs, workflow_runs, workflows
+2026-03-21T17:32:43 | INFO     | app.core.init_db | Database initialisation complete.
+2026-03-21T17:32:43 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:32:43 | INFO     | app.main | Database initialised successfully.
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | SELECT workflows.id AS workflows_id, workflows.name AS workflows_name, workflows.description AS workflows_description, workflows.workflow_type AS workflows_workflow_type, workflows.created_at AS workflows_created_at, workflows.updated_at AS workflows_updated_at 
+FROM workflows 
+WHERE workflows.name = ?
+ LIMIT ? OFFSET ?
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00095s] ('Test Demo', 1, 0)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | INSERT INTO workflows (name, description, workflow_type, created_at, updated_at) VALUES (?, ?, ?, ?, ?)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00078s] ('Test Demo', None, 'demo', '2026-03-21 12:02:56.357045', '2026-03-21 12:02:56.357045')
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | SELECT workflows.id, workflows.name, workflows.description, workflows.workflow_type, workflows.created_at, workflows.updated_at 
+FROM workflows 
+WHERE workflows.id = ?
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00105s] (1,)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | INSERT INTO workflow_runs (workflow_id, status, current_step, created_at, updated_at) VALUES (?, ?, ?, ?, ?)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00105s] (1, 'PENDING', None, '2026-03-21 12:02:56.377538', '2026-03-21 12:02:56.377538')
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | SELECT workflow_runs.id, workflow_runs.workflow_id, workflow_runs.status, workflow_runs.current_step, workflow_runs.created_at, workflow_runs.updated_at 
+FROM workflow_runs 
+WHERE workflow_runs.id = ?
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00121s] (1,)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | UPDATE workflow_runs SET status=?, updated_at=? WHERE workflow_runs.id = ?
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00065s] ('RUNNING', '2026-03-21 12:02:56.394206', 1)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id AS step_runs_id, step_runs.workflow_run_id AS step_runs_workflow_run_id, step_runs.step_name AS step_runs_step_name, step_runs.status AS step_runs_status, step_runs.result AS step_runs_result, step_runs.error_message AS step_runs_error_message, step_runs.retry_count AS step_runs_retry_count, step_runs.created_at AS step_runs_created_at, step_runs.updated_at AS step_runs_updated_at 
+FROM step_runs 
+WHERE step_runs.workflow_run_id = ? AND step_runs.step_name = ?
+ LIMIT ? OFFSET ?
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00054s] (1, 'build', 1, 0)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | INSERT INTO step_runs (workflow_run_id, step_name, status, result, error_message, retry_count, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00068s] (1, 'build', 'PENDING', None, None, 0, '2026-03-21 12:02:56.405742', '2026-03-21 12:02:56.405742')
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id, step_runs.workflow_run_id, step_runs.step_name, step_runs.status, step_runs.result, step_runs.error_message, step_runs.retry_count, step_runs.created_at, step_runs.updated_at 
+FROM step_runs 
+WHERE step_runs.id = ?
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00039s] (1,)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | UPDATE workflow_runs SET current_step=?, updated_at=? WHERE workflow_runs.id = ?
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00071s] ('build', '2026-03-21 12:02:56.417745', 1)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | UPDATE step_runs SET status=?, updated_at=? WHERE step_runs.id = ?
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00105s] ('RUNNING', '2026-03-21 12:02:56.420746', 1)
+2026-03-21T17:32:56 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:32:56 | INFO     | app.engine.sample_steps | Building project...
+2026-03-21T17:32:57 | INFO     | app.engine.sample_steps | Build completed successfully
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | UPDATE step_runs SET status=?, result=?, updated_at=? WHERE step_runs.id = ?
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00063s] ('SUCCESS', 'Build completed successfully', '2026-03-21 12:02:57.428556', 1)
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id AS step_runs_id, step_runs.workflow_run_id AS step_runs_workflow_run_id, step_runs.step_name AS step_runs_step_name, step_runs.status AS step_runs_status, step_runs.result AS step_runs_result, step_runs.error_message AS step_runs_error_message, step_runs.retry_count AS step_runs_retry_count, step_runs.created_at AS step_runs_created_at, step_runs.updated_at AS step_runs_updated_at 
+FROM step_runs 
+WHERE step_runs.workflow_run_id = ? AND step_runs.step_name = ?
+ LIMIT ? OFFSET ?
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | [cached since 1.034s ago] (1, 'test', 1, 0)
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | INSERT INTO step_runs (workflow_run_id, step_name, status, result, error_message, retry_count, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | [cached since 1.034s ago] (1, 'test', 'PENDING', None, None, 0, '2026-03-21 12:02:57.439561', '2026-03-21 12:02:57.439561')
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id, step_runs.workflow_run_id, step_runs.step_name, step_runs.status, step_runs.result, step_runs.error_message, step_runs.retry_count, step_runs.created_at, step_runs.updated_at 
+FROM step_runs 
+WHERE step_runs.id = ?
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | [cached since 1.034s ago] (2,)
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | UPDATE workflow_runs SET current_step=?, updated_at=? WHERE workflow_runs.id = ?
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | [cached since 1.032s ago] ('test', '2026-03-21 12:02:57.448556', 1)
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | UPDATE step_runs SET status=?, updated_at=? WHERE step_runs.id = ?
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | [cached since 1.032s ago] ('RUNNING', '2026-03-21 12:02:57.451557', 2)
+2026-03-21T17:32:57 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:32:57 | INFO     | app.engine.sample_steps | Running tests...
+2026-03-21T17:32:58 | INFO     | app.engine.sample_steps | All tests passed
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | UPDATE step_runs SET status=?, result=?, updated_at=? WHERE step_runs.id = ?
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | [cached since 1.034s ago] ('SUCCESS', 'All tests passed', '2026-03-21 12:02:58.461425', 2)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id AS step_runs_id, step_runs.workflow_run_id AS step_runs_workflow_run_id, step_runs.step_name AS step_runs_step_name, step_runs.status AS step_runs_status, step_runs.result AS step_runs_result, step_runs.error_message AS step_runs_error_message, step_runs.retry_count AS step_runs_retry_count, step_runs.created_at AS step_runs_created_at, step_runs.updated_at AS step_runs_updated_at 
+FROM step_runs 
+WHERE step_runs.workflow_run_id = ? AND step_runs.step_name = ?
+ LIMIT ? OFFSET ?
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | [cached since 2.083s ago] (1, 'approval', 1, 0)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | INSERT INTO step_runs (workflow_run_id, step_name, status, result, error_message, retry_count, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | [cached since 2.086s ago] (1, 'approval', 'PENDING', None, None, 0, '2026-03-21 12:02:58.489965', '2026-03-21 12:02:58.489965')
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id, step_runs.workflow_run_id, step_runs.step_name, step_runs.status, step_runs.result, step_runs.error_message, step_runs.retry_count, step_runs.created_at, step_runs.updated_at 
+FROM step_runs 
+WHERE step_runs.id = ?
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | [cached since 2.094s ago] (3,)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | UPDATE workflow_runs SET current_step=?, updated_at=? WHERE workflow_runs.id = ?
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | [cached since 2.095s ago] ('approval', '2026-03-21 12:02:58.511468', 1)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | UPDATE step_runs SET status=?, updated_at=? WHERE step_runs.id = ?
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | [cached since 2.097s ago] ('RUNNING', '2026-03-21 12:02:58.516396', 3)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:32:58 | INFO     | app.engine.sample_steps | Workflow paused — awaiting manual approval.
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | UPDATE workflow_runs SET status=?, updated_at=? WHERE workflow_runs.id = ?
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | [cached since 2.135s ago] ('WAITING_APPROVAL', '2026-03-21 12:02:58.528399', 1)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | UPDATE step_runs SET status=?, result=?, updated_at=? WHERE step_runs.id = ?
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | [cached since 1.108s ago] ('PENDING', 'Waiting for manual approval via POST /api/workflows/runs/{id}/approve', '2026-03-21 12:02:58.535416', 3)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:32:58 | INFO     | app.engine.engine | Workflow paused at step 'approval' — awaiting approval.
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | SELECT workflow_runs.id, workflow_runs.workflow_id, workflow_runs.status, workflow_runs.current_step, workflow_runs.created_at, workflow_runs.updated_at 
+FROM workflow_runs 
+WHERE workflow_runs.id = ?
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | [cached since 2.157s ago] (1,)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | ROLLBACK
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | SELECT workflow_runs.id AS workflow_runs_id, workflow_runs.workflow_id AS workflow_runs_workflow_id, workflow_runs.status AS workflow_runs_status, workflow_runs.current_step AS workflow_runs_current_step, workflow_runs.created_at AS workflow_runs_created_at, workflow_runs.updated_at AS workflow_runs_updated_at 
+FROM workflow_runs 
+WHERE workflow_runs.id = ?
+ LIMIT ? OFFSET ?
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00045s] (1, 1, 0)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id AS step_runs_id, step_runs.workflow_run_id AS step_runs_workflow_run_id, step_runs.step_name AS step_runs_step_name, step_runs.status AS step_runs_status, step_runs.result AS step_runs_result, step_runs.error_message AS step_runs_error_message, step_runs.retry_count AS step_runs_retry_count, step_runs.created_at AS step_runs_created_at, step_runs.updated_at AS step_runs_updated_at 
+FROM step_runs 
+WHERE step_runs.workflow_run_id = ?
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00053s] (1,)
+2026-03-21T17:32:58 | INFO     | sqlalchemy.engine.Engine | ROLLBACK
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | SELECT workflow_runs.id AS workflow_runs_id, workflow_runs.workflow_id AS workflow_runs_workflow_id, workflow_runs.status AS workflow_runs_status, workflow_runs.current_step AS workflow_runs_current_step, workflow_runs.created_at AS workflow_runs_created_at, workflow_runs.updated_at AS workflow_runs_updated_at 
+FROM workflow_runs 
+WHERE workflow_runs.id = ?
+ LIMIT ? OFFSET ?
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | [cached since 39.78s ago] (1, 1, 0)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id AS step_runs_id, step_runs.workflow_run_id AS step_runs_workflow_run_id, step_runs.step_name AS step_runs_step_name, step_runs.status AS step_runs_status, step_runs.result AS step_runs_result, step_runs.error_message AS step_runs_error_message, step_runs.retry_count AS step_runs_retry_count, step_runs.created_at AS step_runs_created_at, step_runs.updated_at AS step_runs_updated_at 
+FROM step_runs 
+WHERE step_runs.workflow_run_id = ? AND step_runs.step_name = ?
+ LIMIT ? OFFSET ?
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | [cached since 41.94s ago] (1, 'approval', 1, 0)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | UPDATE step_runs SET status=?, result=?, updated_at=? WHERE step_runs.id = ?
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | [cached since 40.91s ago] ('SUCCESS', 'Looks good, deploy it!', '2026-03-21 12:03:38.340960', 3)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | UPDATE workflow_runs SET status=?, updated_at=? WHERE workflow_runs.id = ?
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | [cached since 41.96s ago] ('RUNNING', '2026-03-21 12:03:38.350956', 1)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id AS step_runs_id, step_runs.workflow_run_id AS step_runs_workflow_run_id, step_runs.step_name AS step_runs_step_name, step_runs.status AS step_runs_status, step_runs.result AS step_runs_result, step_runs.error_message AS step_runs_error_message, step_runs.retry_count AS step_runs_retry_count, step_runs.created_at AS step_runs_created_at, step_runs.updated_at AS step_runs_updated_at 
+FROM step_runs 
+WHERE step_runs.workflow_run_id = ? AND step_runs.step_name = ?
+ LIMIT ? OFFSET ?
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | [cached since 41.96s ago] (1, 'build', 1, 0)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id AS step_runs_id, step_runs.workflow_run_id AS step_runs_workflow_run_id, step_runs.step_name AS step_runs_step_name, step_runs.status AS step_runs_status, step_runs.result AS step_runs_result, step_runs.error_message AS step_runs_error_message, step_runs.retry_count AS step_runs_retry_count, step_runs.created_at AS step_runs_created_at, step_runs.updated_at AS step_runs_updated_at 
+FROM step_runs 
+WHERE step_runs.workflow_run_id = ? AND step_runs.step_name = ?
+ LIMIT ? OFFSET ?
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | [cached since 41.96s ago] (1, 'test', 1, 0)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id AS step_runs_id, step_runs.workflow_run_id AS step_runs_workflow_run_id, step_runs.step_name AS step_runs_step_name, step_runs.status AS step_runs_status, step_runs.result AS step_runs_result, step_runs.error_message AS step_runs_error_message, step_runs.retry_count AS step_runs_retry_count, step_runs.created_at AS step_runs_created_at, step_runs.updated_at AS step_runs_updated_at 
+FROM step_runs 
+WHERE step_runs.workflow_run_id = ? AND step_runs.step_name = ?
+ LIMIT ? OFFSET ?
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | [cached since 41.96s ago] (1, 'approval', 1, 0)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id AS step_runs_id, step_runs.workflow_run_id AS step_runs_workflow_run_id, step_runs.step_name AS step_runs_step_name, step_runs.status AS step_runs_status, step_runs.result AS step_runs_result, step_runs.error_message AS step_runs_error_message, step_runs.retry_count AS step_runs_retry_count, step_runs.created_at AS step_runs_created_at, step_runs.updated_at AS step_runs_updated_at 
+FROM step_runs 
+WHERE step_runs.workflow_run_id = ? AND step_runs.step_name = ?
+ LIMIT ? OFFSET ?
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | [cached since 41.96s ago] (1, 'deploy', 1, 0)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | INSERT INTO step_runs (workflow_run_id, step_name, status, result, error_message, retry_count, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | [cached since 41.96s ago] (1, 'deploy', 'PENDING', None, None, 0, '2026-03-21 12:03:38.369957', '2026-03-21 12:03:38.369957')
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id, step_runs.workflow_run_id, step_runs.step_name, step_runs.status, step_runs.result, step_runs.error_message, step_runs.retry_count, step_runs.created_at, step_runs.updated_at 
+FROM step_runs 
+WHERE step_runs.id = ?
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | [cached since 41.97s ago] (4,)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | UPDATE workflow_runs SET current_step=?, updated_at=? WHERE workflow_runs.id = ?
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | [cached since 41.97s ago] ('deploy', '2026-03-21 12:03:38.384969', 1)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | UPDATE step_runs SET status=?, updated_at=? WHERE step_runs.id = ?
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | [cached since 41.97s ago] ('RUNNING', '2026-03-21 12:03:38.388973', 4)
+2026-03-21T17:33:38 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:33:38 | INFO     | app.engine.sample_steps | Deploying application...
+2026-03-21T17:33:39 | INFO     | app.engine.sample_steps | Deployment completed successfully
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | UPDATE step_runs SET status=?, result=?, updated_at=? WHERE step_runs.id = ?
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | [cached since 41.97s ago] ('SUCCESS', 'Deployment completed successfully', '2026-03-21 12:03:39.400545', 4)
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | UPDATE workflow_runs SET status=?, current_step=?, updated_at=? WHERE workflow_runs.id = ?
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00047s] ('SUCCESS', None, '2026-03-21 12:03:39.408542', 1)
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:33:39 | INFO     | app.engine.engine | Workflow 1 completed successfully.
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | SELECT workflow_runs.id, workflow_runs.workflow_id, workflow_runs.status, workflow_runs.current_step, workflow_runs.created_at, workflow_runs.updated_at 
+FROM workflow_runs 
+WHERE workflow_runs.id = ?
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | [cached since 43.02s ago] (1,)
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | ROLLBACK
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | SELECT workflow_runs.id AS workflow_runs_id, workflow_runs.workflow_id AS workflow_runs_workflow_id, workflow_runs.status AS workflow_runs_status, workflow_runs.current_step AS workflow_runs_current_step, workflow_runs.created_at AS workflow_runs_created_at, workflow_runs.updated_at AS workflow_runs_updated_at 
+FROM workflow_runs 
+WHERE workflow_runs.id = ?
+ LIMIT ? OFFSET ?
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | [cached since 40.87s ago] (1, 1, 0)
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id AS step_runs_id, step_runs.workflow_run_id AS step_runs_workflow_run_id, step_runs.step_name AS step_runs_step_name, step_runs.status AS step_runs_status, step_runs.result AS step_runs_result, step_runs.error_message AS step_runs_error_message, step_runs.retry_count AS step_runs_retry_count, step_runs.created_at AS step_runs_created_at, step_runs.updated_at AS step_runs_updated_at 
+FROM step_runs 
+WHERE step_runs.workflow_run_id = ?
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | [cached since 40.87s ago] (1,)
+2026-03-21T17:33:39 | INFO     | sqlalchemy.engine.Engine | ROLLBACK
+2026-03-21T17:36:21 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-03-21T17:36:22 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-03-21T17:36:22 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T17:36:22 | INFO     | sqlalchemy.engine.Engine | SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite~_%' ESCAPE '~' ORDER BY name
+2026-03-21T17:36:22 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:36:22 | INFO     | sqlalchemy.engine.Engine | PRAGMA main.table_info("workflows")
+2026-03-21T17:36:22 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:36:22 | INFO     | sqlalchemy.engine.Engine | PRAGMA main.table_info("workflow_runs")
+2026-03-21T17:36:22 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:36:22 | INFO     | sqlalchemy.engine.Engine | PRAGMA main.table_info("step_runs")
+2026-03-21T17:36:22 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T17:36:22 | INFO     | app.core.init_db | Database initialisation complete.
+2026-03-21T17:36:22 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T17:36:22 | INFO     | app.main | Database initialised successfully.
+2026-03-21T17:48:58 | INFO     | app.main | Shutting down Deployment Automation Tool.
