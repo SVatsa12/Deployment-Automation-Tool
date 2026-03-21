@@ -509,3 +509,126 @@ WHERE step_runs.workflow_run_id = ?
 2026-03-21T18:03:39 | INFO     | sqlalchemy.engine.Engine | [cached since 173.7s ago] ('Deploy to vercel', 'Deploying https://github.com/octocat/Spoon-Knife to vercel', 'deployment', '2026-03-21 12:33:39.785536', '2026-03-21 12:33:39.785536')
 2026-03-21T18:03:39 | INFO     | sqlalchemy.engine.Engine | ROLLBACK
 2026-03-21T18:08:31 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-03-21T18:08:32 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-03-21T18:08:32 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T18:08:32 | INFO     | sqlalchemy.engine.Engine | SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite~_%' ESCAPE '~' ORDER BY name
+2026-03-21T18:08:32 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T18:08:32 | INFO     | sqlalchemy.engine.Engine | PRAGMA main.table_info("workflows")
+2026-03-21T18:08:32 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T18:08:32 | INFO     | sqlalchemy.engine.Engine | PRAGMA main.table_info("workflow_runs")
+2026-03-21T18:08:32 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T18:08:32 | INFO     | sqlalchemy.engine.Engine | PRAGMA main.table_info("step_runs")
+2026-03-21T18:08:32 | INFO     | sqlalchemy.engine.Engine | [raw sql] ()
+2026-03-21T18:08:32 | INFO     | app.core.init_db | Database initialisation complete.
+2026-03-21T18:08:32 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T18:08:32 | INFO     | app.main | Database initialised successfully.
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | SELECT workflows.id AS workflows_id, workflows.name AS workflows_name, workflows.description AS workflows_description, workflows.workflow_type AS workflows_workflow_type, workflows.created_at AS workflows_created_at, workflows.updated_at AS workflows_updated_at 
+FROM workflows 
+WHERE workflows.name = ?
+ LIMIT ? OFFSET ?
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00058s] ('Deploy to vercel', 1, 0)
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | INSERT INTO workflow_runs (workflow_id, status, current_step, created_at, updated_at) VALUES (?, ?, ?, ?, ?)
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00082s] (2, 'PENDING', 'initializing', '2026-03-21 12:39:07.839051', '2026-03-21 12:39:07.839051')
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | SELECT workflow_runs.id, workflow_runs.workflow_id, workflow_runs.status, workflow_runs.current_step, workflow_runs.created_at, workflow_runs.updated_at 
+FROM workflow_runs 
+WHERE workflow_runs.id = ?
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00062s] (3,)
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | SELECT workflow_runs.id AS workflow_runs_id, workflow_runs.workflow_id AS workflow_runs_workflow_id, workflow_runs.status AS workflow_runs_status, workflow_runs.current_step AS workflow_runs_current_step, workflow_runs.created_at AS workflow_runs_created_at, workflow_runs.updated_at AS workflow_runs_updated_at 
+FROM workflow_runs 
+WHERE workflow_runs.id = ?
+ LIMIT ? OFFSET ?
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00056s] (3, 1, 0)
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | UPDATE workflow_runs SET status=?, updated_at=? WHERE workflow_runs.id = ?
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00054s] ('RUNNING', '2026-03-21 12:39:07.854683', 3)
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id AS step_runs_id, step_runs.workflow_run_id AS step_runs_workflow_run_id, step_runs.step_name AS step_runs_step_name, step_runs.status AS step_runs_status, step_runs.result AS step_runs_result, step_runs.error_message AS step_runs_error_message, step_runs.retry_count AS step_runs_retry_count, step_runs.created_at AS step_runs_created_at, step_runs.updated_at AS step_runs_updated_at 
+FROM step_runs 
+WHERE step_runs.workflow_run_id = ? AND step_runs.step_name = ?
+ LIMIT ? OFFSET ?
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00089s] (3, 'git_clone', 1, 0)
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | INSERT INTO step_runs (workflow_run_id, step_name, status, result, error_message, retry_count, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00051s] (3, 'git_clone', 'PENDING', None, None, 0, '2026-03-21 12:39:07.868324', '2026-03-21 12:39:07.868324')
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id, step_runs.workflow_run_id, step_runs.step_name, step_runs.status, step_runs.result, step_runs.error_message, step_runs.retry_count, step_runs.created_at, step_runs.updated_at 
+FROM step_runs 
+WHERE step_runs.id = ?
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00039s] (6,)
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | UPDATE workflow_runs SET current_step=?, updated_at=? WHERE workflow_runs.id = ?
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00037s] ('git_clone', '2026-03-21 12:39:07.879799', 3)
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | UPDATE step_runs SET status=?, updated_at=? WHERE step_runs.id = ?
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00046s] ('RUNNING', '2026-03-21 12:39:07.882758', 6)
+2026-03-21T18:09:07 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | UPDATE step_runs SET status=?, result=?, updated_at=? WHERE step_runs.id = ?
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00055s] ('SUCCESS', 'Successfully cloned to C:\\Users\\qshub\\AppData\\Local\\Temp\\deploy_78t7fvg7', '2026-03-21 12:39:10.050339', 6)
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id AS step_runs_id, step_runs.workflow_run_id AS step_runs_workflow_run_id, step_runs.step_name AS step_runs_step_name, step_runs.status AS step_runs_status, step_runs.result AS step_runs_result, step_runs.error_message AS step_runs_error_message, step_runs.retry_count AS step_runs_retry_count, step_runs.created_at AS step_runs_created_at, step_runs.updated_at AS step_runs_updated_at 
+FROM step_runs 
+WHERE step_runs.workflow_run_id = ? AND step_runs.step_name = ?
+ LIMIT ? OFFSET ?
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | [cached since 2.192s ago] (3, 'platform_deploy', 1, 0)
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | INSERT INTO step_runs (workflow_run_id, step_name, status, result, error_message, retry_count, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | [cached since 2.191s ago] (3, 'platform_deploy', 'PENDING', None, None, 0, '2026-03-21 12:39:10.059881', '2026-03-21 12:39:10.059881')
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id, step_runs.workflow_run_id, step_runs.step_name, step_runs.status, step_runs.result, step_runs.error_message, step_runs.retry_count, step_runs.created_at, step_runs.updated_at 
+FROM step_runs 
+WHERE step_runs.id = ?
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | [cached since 2.202s ago] (7,)
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | UPDATE workflow_runs SET current_step=?, updated_at=? WHERE workflow_runs.id = ?
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | [cached since 2.202s ago] ('platform_deploy', '2026-03-21 12:39:10.080881', 3)
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | UPDATE step_runs SET status=?, updated_at=? WHERE step_runs.id = ?
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | [cached since 2.202s ago] ('RUNNING', '2026-03-21 12:39:10.083883', 7)
+2026-03-21T18:09:10 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | UPDATE step_runs SET status=?, result=?, updated_at=? WHERE step_runs.id = ?
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | [cached since 9.834s ago] ('SUCCESS', 'Successfully deployed to https://spoon-knife-test-k1wqgw7ex-qshubhamq2-5934s-projects.vercel.app', '2026-03-21 12:39:19.883444', 7)
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id AS step_runs_id, step_runs.workflow_run_id AS step_runs_workflow_run_id, step_runs.step_name AS step_runs_step_name, step_runs.status AS step_runs_status, step_runs.result AS step_runs_result, step_runs.error_message AS step_runs_error_message, step_runs.retry_count AS step_runs_retry_count, step_runs.created_at AS step_runs_created_at, step_runs.updated_at AS step_runs_updated_at 
+FROM step_runs 
+WHERE step_runs.workflow_run_id = ? AND step_runs.step_name = ?
+ LIMIT ? OFFSET ?
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | [cached since 12.03s ago] (3, 'cleanup', 1, 0)
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | INSERT INTO step_runs (workflow_run_id, step_name, status, result, error_message, retry_count, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | [cached since 12.03s ago] (3, 'cleanup', 'PENDING', None, None, 0, '2026-03-21 12:39:19.898168', '2026-03-21 12:39:19.898168')
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id, step_runs.workflow_run_id, step_runs.step_name, step_runs.status, step_runs.result, step_runs.error_message, step_runs.retry_count, step_runs.created_at, step_runs.updated_at 
+FROM step_runs 
+WHERE step_runs.id = ?
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | [cached since 12.04s ago] (8,)
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | UPDATE workflow_runs SET current_step=?, updated_at=? WHERE workflow_runs.id = ?
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | [cached since 12.04s ago] ('cleanup', '2026-03-21 12:39:19.917059', 3)
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | UPDATE step_runs SET status=?, updated_at=? WHERE step_runs.id = ?
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | [cached since 12.04s ago] ('RUNNING', '2026-03-21 12:39:19.923056', 8)
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | UPDATE step_runs SET status=?, result=?, updated_at=? WHERE step_runs.id = ?
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | [cached since 9.911s ago] ('SUCCESS', 'Cleaned up C:\\Users\\qshub\\AppData\\Local\\Temp\\deploy_78t7fvg7', '2026-03-21 12:39:19.960712', 8)
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | UPDATE workflow_runs SET status=?, current_step=?, updated_at=? WHERE workflow_runs.id = ?
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00067s] ('SUCCESS', None, '2026-03-21 12:39:19.969538', 3)
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | COMMIT
+2026-03-21T18:09:19 | INFO     | app.engine.engine | Workflow 3 completed successfully.
+2026-03-21T18:09:19 | INFO     | sqlalchemy.engine.Engine | ROLLBACK
+2026-03-21T18:09:51 | INFO     | sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-03-21T18:09:51 | INFO     | sqlalchemy.engine.Engine | SELECT workflow_runs.id AS workflow_runs_id, workflow_runs.workflow_id AS workflow_runs_workflow_id, workflow_runs.status AS workflow_runs_status, workflow_runs.current_step AS workflow_runs_current_step, workflow_runs.created_at AS workflow_runs_created_at, workflow_runs.updated_at AS workflow_runs_updated_at 
+FROM workflow_runs 
+WHERE workflow_runs.id = ?
+ LIMIT ? OFFSET ?
+2026-03-21T18:09:51 | INFO     | sqlalchemy.engine.Engine | [cached since 43.79s ago] (3, 1, 0)
+2026-03-21T18:09:51 | INFO     | sqlalchemy.engine.Engine | SELECT step_runs.id AS step_runs_id, step_runs.workflow_run_id AS step_runs_workflow_run_id, step_runs.step_name AS step_runs_step_name, step_runs.status AS step_runs_status, step_runs.result AS step_runs_result, step_runs.error_message AS step_runs_error_message, step_runs.retry_count AS step_runs_retry_count, step_runs.created_at AS step_runs_created_at, step_runs.updated_at AS step_runs_updated_at 
+FROM step_runs 
+WHERE step_runs.workflow_run_id = ?
+2026-03-21T18:09:51 | INFO     | sqlalchemy.engine.Engine | [generated in 0.00059s] (3,)
+2026-03-21T18:09:51 | INFO     | sqlalchemy.engine.Engine | ROLLBACK
+2026-03-21T18:57:54 | INFO     | app.main | Shutting down Deployment Automation Tool.
