@@ -13,7 +13,7 @@ from app.core.database import Base
 
 
 # FIX 4: Allowed status values — enforced at the application layer.
-# SQLite does not support CHECK constraints reliably, so we validate here.
+# SQLite does not support CHECK constraints reliably, so we validate 
 VALID_RUN_STATUSES = {
     "PENDING",
     "RUNNING",
