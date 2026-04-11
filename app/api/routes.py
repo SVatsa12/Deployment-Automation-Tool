@@ -118,9 +118,10 @@ def _update_run_deployment_url(workflow_run: WorkflowRun, db: Session) -> None:
 
 
 def _workflow_run_response(run: WorkflowRun, db: Session) -> WorkflowRunResponse:
-    if run.deployment_url and run.id not in short_urls_for_run_ids(db, [run.id]):
-        ensure_short_link_for_run(db, run)
     urls = short_urls_for_run_ids(db, [run.id])
+    if run.deployment_url and run.id not in urls:
+        ensure_short_link_for_run(db, run)
+        urls = short_urls_for_run_ids(db, [run.id])
     return WorkflowRunResponse.model_validate(run).model_copy(
         update={"short_url": urls.get(run.id)}
     )
