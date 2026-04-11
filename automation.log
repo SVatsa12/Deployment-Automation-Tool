@@ -1898,3 +1898,80 @@ FROM workflow_runs ORDER BY workflow_runs.created_at DESC
 2026-04-12T02:34:07 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
 2026-04-12T02:34:07 | INFO     | app.core.init_db | Database initialisation complete.
 2026-04-12T02:34:07 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:51:24 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:51:26 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:51:26 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:51:26 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:52:00 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:52:01 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:52:01 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:52:01 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:52:23 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:52:24 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:52:24 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:52:24 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:52:40 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:52:41 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:52:41 | INFO     | app.core.init_db | Created tables: short_links
+2026-04-12T02:52:41 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:52:41 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:53:03 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:53:04 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:53:04 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:53:04 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:53:31 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:53:33 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:53:33 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:53:33 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:54:08 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:54:09 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:54:09 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:54:09 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:54:33 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:54:34 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:54:34 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:54:34 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:55:06 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:55:07 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:55:07 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:55:07 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:55:29 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:55:31 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:55:31 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:55:31 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:55:45 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:55:46 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:55:46 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:55:46 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:56:10 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:56:11 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:56:11 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:56:11 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:56:27 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:56:28 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:56:28 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:56:28 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:56:52 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:56:54 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:56:54 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:56:54 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:57:19 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:57:20 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:57:20 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:57:20 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:57:43 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:57:44 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:57:44 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:57:44 | INFO     | app.main | Database initialised successfully.
+2026-04-12T03:03:10 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T03:03:11 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T03:03:11 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T03:03:11 | INFO     | app.main | Database initialised successfully.
+2026-04-12T03:03:36 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T03:03:37 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T03:03:37 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T03:03:37 | INFO     | app.main | Database initialised successfully.
+2026-04-12T03:06:02 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T03:06:03 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T03:06:03 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T03:06:03 | INFO     | app.main | Database initialised successfully.
