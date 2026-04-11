@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
+    # Public origin for short links (GET /r/{code}). Set to your API base in production,
+    # e.g. https://api.example.com — must match where this FastAPI app is reachable.
+    PUBLIC_BASE_URL: Optional[str] = None
+
     # FIX 4: CORS origins — restrict in production via the .env file
     # e.g.  ALLOWED_ORIGINS=https://mydomain.com,https://app.mydomain.com
     ALLOWED_ORIGINS: Annotated[List[str], NoDecode] = ["*"]

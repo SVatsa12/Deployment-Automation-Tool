@@ -49,7 +49,7 @@ def ensure_short_link_for_run(db: Session, run: WorkflowRun) -> Optional[str]:
     if existing:
         if existing.target_url != url:
             existing.target_url = url
-            db.commit()
+            db.flush()
         return f"{_public_base()}/r/{existing.code}"
 
     code = _generate_unique_code(db)
@@ -60,5 +60,5 @@ def ensure_short_link_for_run(db: Session, run: WorkflowRun) -> Optional[str]:
             workflow_run_id=run.id,
         )
     )
-    db.commit()
+    db.flush()
     return f"{_public_base()}/r/{code}"

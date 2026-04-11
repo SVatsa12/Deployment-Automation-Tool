@@ -3,7 +3,7 @@ Short links for deployment URLs — maps a short code to the long platform URL.
 """
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Index
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -29,5 +29,3 @@ class ShortLink(Base):
     created_at = Column(DateTime(timezone=True), default=_utcnow, nullable=False)
 
     workflow_run = relationship("WorkflowRun", back_populates="short_link")
-
-    __table_args__ = (Index("ix_short_links_code", "code"),)

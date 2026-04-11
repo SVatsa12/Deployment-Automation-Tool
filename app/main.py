@@ -5,12 +5,16 @@ import logging
 import logging.handlers
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.database import get_db
 from app.core.init_db import init_db
 from app.api.routes import router
+from app.models.short_link import ShortLink
 
 
 # ---------------------------------------------------------------------------
@@ -99,6 +103,15 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 
 app.include_router(router)
+
+
+@app.get("/r/{code}", tags=["redirect"])
+def redirect_short_link(code: str, db: Session = Depends(get_db)):
+    """302 redirect from a short code to the stored deployment URL."""
+    row = db.query(ShortLink).filter(ShortLink.code == code.strip()).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Link not found")
+    return RedirectResponse(url=row.target_url, status_code=302)
 
 
 # ---------------------------------------------------------------------------

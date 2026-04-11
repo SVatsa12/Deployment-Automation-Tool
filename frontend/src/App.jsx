@@ -244,7 +244,9 @@ function App() {
   }
 
   const selectedRun = detailRun ?? runs.find((r) => r.id === selectedRunId);
-  const deploymentUrl = selectedRun?.deployment_url || deploymentUrlFromSteps(steps);
+  const deploymentUrlLong = selectedRun?.deployment_url || deploymentUrlFromSteps(steps);
+  const deploymentUrl =
+    selectedRun?.short_url || selectedRun?.deployment_url || deploymentUrlFromSteps(steps);
   const deployStep = steps.find((s) => s.step_name === 'platform_deploy');
 
   return (
@@ -456,9 +458,22 @@ function App() {
                         <ExternalLink size={18} />
                         Live deployment
                       </div>
-                      <a className="deployment-live-link" href={deploymentUrl} target="_blank" rel="noreferrer">
+                      <a
+                        className="deployment-live-link"
+                        href={deploymentUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
                         {deploymentUrl}
                       </a>
+                      {selectedRun?.short_url && deploymentUrlLong && deploymentUrlLong !== deploymentUrl && (
+                        <p className="deployment-long-url-hint muted" style={{ marginTop: 8, fontSize: '0.85rem' }}>
+                          Platform URL:{' '}
+                          <a href={deploymentUrlLong} target="_blank" rel="noreferrer">
+                            {deploymentUrlLong}
+                          </a>
+                        </p>
+                      )}
                       <p className="deployment-live-help">Open this URL in your browser to use the deployed app (may take a minute on first deploy).</p>
                     </div>
                   )}

@@ -13,6 +13,7 @@ from app.core.database import engine, Base
 from app.models.workflow import Workflow      # noqa: F401
 from app.models.run import WorkflowRun        # noqa: F401
 from app.models.step import StepRun           # noqa: F401
+from app.models.short_link import ShortLink   # noqa: F401
 
 logger = logging.getLogger(__name__)
 
