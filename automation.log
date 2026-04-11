@@ -1894,3 +1894,7 @@ FROM workflow_runs ORDER BY workflow_runs.created_at DESC
 2026-04-12T01:43:27 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
 2026-04-12T01:43:27 | INFO     | app.core.init_db | Database initialisation complete.
 2026-04-12T01:43:27 | INFO     | app.main | Database initialised successfully.
+2026-04-12T02:34:06 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T02:34:07 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T02:34:07 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T02:34:07 | INFO     | app.main | Database initialised successfully.

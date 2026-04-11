@@ -73,6 +73,12 @@ class WorkflowRun(Base):
         lazy="select",
         order_by="StepRun.created_at",
     )
+    short_link = relationship(
+        "ShortLink",
+        back_populates="workflow_run",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
 
     # FIX 5: Composite index on (workflow_id, status) — the most common
     # query pattern in routes.py is filtering runs by workflow + status.

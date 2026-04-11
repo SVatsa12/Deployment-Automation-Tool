@@ -81,6 +81,7 @@ function App() {
       const [run, stepList] = await Promise.all([api.getWorkflowRun(rid), api.getWorkflowSteps(rid)]);
       setDetailRun(run);
       setSteps(sortStepsById(stepList));
+      setRuns((prev) => prev.map((r) => (r.id === rid ? { ...r, ...run } : r)));
     } catch {
       setDetailRun(null);
       setSteps([]);
@@ -120,6 +121,7 @@ function App() {
     };
   }, [selectedRunId]);
 
+  // Poll while run is in progress; depend on status only so object identity changes do not reset the interval.
   useEffect(() => {
     if (!selectedRunId || !detailRun) return;
     const busy = detailRun.status === 'RUNNING' || detailRun.status === 'PENDING';
@@ -132,11 +134,17 @@ function App() {
           setSteps(sortStepsById(stepList));
           if (Array.isArray(list)) {
             setRuns(list);
+            setDetailRun((prev) => {
+              if (!prev || prev.id !== id) return prev;
+              const row = list.find((r) => r.id === id);
+              return row ? { ...prev, ...row, ...run } : { ...prev, ...run };
+            });
           }
         })
         .catch(() => {});
     }, 2500);
     return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- detailRun?.status is the intended trigger
   }, [selectedRunId, detailRun?.status]);
 
   async function handleExploreDemo() {
@@ -388,7 +396,15 @@ function App() {
         <section id="pipelines" className="content-section">
           <div className="section-header">
             <h2 className="section-title">Workflow runs</h2>
-            <button type="button" className="btn btn-outline btn-sm" onClick={loadRuns} disabled={runsLoading}>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              onClick={async () => {
+                await loadRuns();
+                if (selectedRunId) await loadRunDetail(selectedRunId);
+              }}
+              disabled={runsLoading}
+            >
               {runsLoading ? <Loader2 size={16} className="spin" /> : <RefreshCw size={16} />}
               Refresh
             </button>
@@ -427,15 +443,38 @@ function App() {
                         · current: <code>{selectedRun.current_step}</code>
                       </>
                     )}
-                    {selectedRun.deployment_url && (
-                      <div className="deployment-url-badge">
-                        <Rocket size={14} />
-                        <a href={selectedRun.deployment_url} target="_blank" rel="noreferrer">
-                          {selectedRun.deployment_url}
-                        </a>
-                      </div>
-                    )}
                   </p>
+                  {(selectedRun.status === 'RUNNING' || selectedRun.status === 'PENDING') && (
+                    <p className="deploy-progress-hint">
+                      <Loader2 size={14} className="spin" style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />
+                      Deployment in progress — this page refreshes every few seconds. You can also click Refresh.
+                    </p>
+                  )}
+                  {deploymentUrl && (
+                    <div className="deployment-live-banner">
+                      <div className="deployment-live-title">
+                        <ExternalLink size={18} />
+                        Live deployment
+                      </div>
+                      <a className="deployment-live-link" href={deploymentUrl} target="_blank" rel="noreferrer">
+                        {deploymentUrl}
+                      </a>
+                      <p className="deployment-live-help">Open this URL in your browser to use the deployed app (may take a minute on first deploy).</p>
+                    </div>
+                  )}
+                  {!deploymentUrl &&
+                    selectedRun.status === 'SUCCESS' &&
+                    deployStep &&
+                    deployStep.status === 'SUCCESS' && (
+                      <p className="muted" style={{ marginBottom: 12 }}>
+                        Deploy step finished but no URL was parsed. See <strong>platform_deploy</strong> output below.
+                      </p>
+                    )}
+                  {!deploymentUrl && selectedRun.status === 'SUCCESS' && !deployStep && (
+                    <p className="muted" style={{ marginBottom: 12 }}>
+                      This run has no <code>platform_deploy</code> step (e.g. demo workflow only). Deploy from &quot;Connect your repo&quot; to get a live URL.
+                    </p>
+                  )}
                   {selectedRun.status === 'WAITING_APPROVAL' && (
                     <div className="action-row">
                       <button type="button" className="btn btn-primary btn-sm" disabled={actionBusy} onClick={() => handleApprove(true)}>
