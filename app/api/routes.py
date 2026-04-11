@@ -1,10 +1,12 @@
+import re
+
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel, HttpUrl
 from datetime import datetime
 
-from app.core.database import SessionLocal
+from app.core.database import SessionLocal, get_db
 from app.models.workflow import Workflow
 from app.models.run import WorkflowRun
 from app.models.step import StepRun
@@ -24,18 +26,6 @@ router = APIRouter(prefix="/api", tags=["workflows"])
 
 
 # ---------------------------------------------------------------------------
-# DB dependency
-# ---------------------------------------------------------------------------
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-# ---------------------------------------------------------------------------
 # Pydantic schemas
 # ---------------------------------------------------------------------------
 
@@ -50,6 +40,7 @@ class WorkflowRunResponse(BaseModel):
     workflow_id: int
     status: str
     current_step: Optional[str]
+    deployment_url: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
@@ -96,6 +87,34 @@ def _demo_steps():
     return [BuildStep(), TestStep(), ApprovalStep(), DeployStep()]
 
 
+def _update_run_deployment_url(workflow_run: WorkflowRun, db: Session) -> None:
+    """
+    Set workflow_run.deployment_url from successful deploy step output.
+    Handles 'URL: https://...' and plain https URLs in the result text.
+    """
+    if workflow_run.deployment_url:
+        return
+    steps = (
+        db.query(StepRun)
+        .filter(StepRun.workflow_run_id == workflow_run.id)
+        .order_by(StepRun.id.asc())
+        .all()
+    )
+    for step in steps:
+        if step.status != "SUCCESS" or not step.result:
+            continue
+        text = step.result.strip()
+        if "URL: " in text:
+            after = text.split("URL: ", 1)[1].strip().split()[0].split("\n")[0]
+            if after.startswith("http"):
+                workflow_run.deployment_url = after.rstrip(".,);")
+                return
+        m = re.search(r"https://[^\s\)\"'<>]+", text)
+        if m:
+            workflow_run.deployment_url = m.group(0).rstrip(".,);")
+            return
+
+
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -128,6 +147,7 @@ def create_workflow(workflow: WorkflowCreate, db: Session = Depends(get_db)):
     try:
         run_workflow(workflow_run, steps, db)
         db.refresh(workflow_run)
+        _update_run_deployment_url(workflow_run, db)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Workflow execution failed: {str(e)}")
 
@@ -162,7 +182,12 @@ def get_workflow_steps(run_id: int, db: Session = Depends(get_db)):
     workflow_run = db.query(WorkflowRun).filter(WorkflowRun.id == run_id).first()
     if not workflow_run:
         raise HTTPException(status_code=404, detail="Workflow run not found")
-    return db.query(StepRun).filter(StepRun.workflow_run_id == run_id).all()
+    return (
+        db.query(StepRun)
+        .filter(StepRun.workflow_run_id == run_id)
+        .order_by(StepRun.id.asc())
+        .all()
+    )
 
 
 @router.post("/workflows/runs/{run_id}/approve", response_model=WorkflowRunResponse)
@@ -205,6 +230,7 @@ def approve_workflow(
     try:
         run_workflow(workflow_run, steps, db)
         db.refresh(workflow_run)
+        _update_run_deployment_url(workflow_run, db)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Workflow resume failed: {str(e)}")
 
@@ -228,6 +254,7 @@ def resume_workflow(run_id: int, db: Session = Depends(get_db)):
     try:
         run_workflow(workflow_run, steps, db)
         db.refresh(workflow_run)
+        _update_run_deployment_url(workflow_run, db)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Workflow resume failed: {str(e)}")
 
@@ -316,9 +343,21 @@ def run_deployment_workflow(
 
         run_workflow(workflow_run, steps, db=db, post_step_hook=post_step_hook)
 
-        # Capture final deployment URL for logging
-        if context.get("deployment_url"):
-            print(f"Deployment successful! URL: {context['deployment_url']}")
+        db.refresh(workflow_run)
+        # context["deployment_url"] is only set after clone; read from deploy step.
+        deploy_step = (
+            steps[1]
+            if len(steps) > 1 and isinstance(steps[1], PlatformDeployStep)
+            else None
+        )
+        if deploy_step and deploy_step.deployment_url:
+            workflow_run.deployment_url = deploy_step.deployment_url
+        if workflow_run.status == "SUCCESS" and not workflow_run.deployment_url:
+            _update_run_deployment_url(workflow_run, db)
+        db.commit()
+
+        if workflow_run.deployment_url:
+            print(f"Deployment successful! URL: {workflow_run.deployment_url}")
 
         print(
             f"Deployment workflow {workflow_run_id} completed "

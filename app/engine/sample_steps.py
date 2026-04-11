@@ -27,7 +27,7 @@ class BuildStep(BaseStep):
         """
         self.output = "Build started"
         logger.info("Building project...")
-        print("🔨 Building project...")
+        print("Building project...")
 
         # NOTE: time.sleep() is a simulation placeholder.
         # In a real BuildStep, replace this with your actual build command,
@@ -52,7 +52,7 @@ class TestStep(BaseStep):
         """
         self.output = "Tests started"
         logger.info("Running tests...")
-        print("🧪 Running tests...")
+        print("Running tests...")
 
         # NOTE: Replace with real test runner, e.g.:
         # subprocess.run(["pytest", "--tb=short"], check=True)
@@ -78,7 +78,7 @@ class ApprovalStep(BaseStep):
         """
         self.output = "Waiting for manual approval via POST /api/workflows/runs/{id}/approve"
         logger.info("Workflow paused — awaiting manual approval.")
-        print("⏸ Waiting for manual approval...")
+        print("Waiting for manual approval...")
         return StepResult.WAITING_APPROVAL
 
 
@@ -94,11 +94,12 @@ class DeployStep(BaseStep):
         """
         self.output = "Deploy started"
         logger.info("Deploying application...")
-        print("🚀 Deploying application...")
+        print("Deploying application...")
 
         # NOTE: Replace with real deploy logic, e.g. call platform_deployers.py
         time.sleep(1)
 
-        self.output = "Deployment completed successfully"
+        mock_url = "https://demo-deploy-nova.vercel.app"
+        self.output = f"Deployment completed successfully. URL: {mock_url}"
         logger.info(self.output)
         return StepResult.SUCCESS

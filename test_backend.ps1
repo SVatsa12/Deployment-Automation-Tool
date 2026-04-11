@@ -4,7 +4,7 @@
 Write-Host "`n=== DEPLOYMENT AUTOMATION TOOL - BACKEND TEST SUITE ===" -ForegroundColor Cyan
 Write-Host "Testing all endpoints...`n" -ForegroundColor White
 
-$baseUrl = "http://localhost:8000"
+$baseUrl = "http://127.0.0.1:8000"
 $passedTests = 0
 $failedTests = 0
 
@@ -119,11 +119,11 @@ if ($workflow -and $workflow.id) {
 Write-Host "`n--- TEST 11: API Documentation Access ---" -ForegroundColor Magenta
 try {
     $docs = Invoke-WebRequest -Uri "$baseUrl/docs" -Method GET -UseBasicParsing
-    Write-Host "✓ PASSED: API Documentation is accessible" -ForegroundColor Green
+    Write-Host "PASSED: API Documentation is accessible" -ForegroundColor Green
     Write-Host "Documentation available at: $baseUrl/docs" -ForegroundColor Cyan
     $passedTests++
 } catch {
-    Write-Host "✗ FAILED: API Documentation" -ForegroundColor Red
+    Write-Host "FAILED: API Documentation" -ForegroundColor Red
     $failedTests++
 }
 
@@ -137,11 +137,11 @@ Write-Host "Failed: $failedTests" -ForegroundColor Red
 Write-Host ("="*60) -ForegroundColor Cyan
 
 if ($failedTests -eq 0) {
-    Write-Host "`n🎉 ALL TESTS PASSED! Backend is working perfectly!" -ForegroundColor Green
+    Write-Host "`nALL TESTS PASSED! Backend is working perfectly!" -ForegroundColor Green
 } else {
-    Write-Host "`n⚠️  Some tests failed. Please review the errors above." -ForegroundColor Yellow
+    Write-Host "`nSome tests failed. Please review the errors above." -ForegroundColor Yellow
 }
 
 Write-Host "`nServer is running at: $baseUrl" -ForegroundColor Cyan
 Write-Host "API Docs: $baseUrl/docs" -ForegroundColor Cyan
-Write-Host "Interactive API: $baseUrl/redoc`n" -ForegroundColor Cyan
+Write-Host "Interactive API: $baseUrl/redoc" -ForegroundColor Cyan

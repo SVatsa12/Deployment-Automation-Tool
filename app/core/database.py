@@ -46,7 +46,7 @@ def _build_engine():
             # StaticPool keeps one connection alive for the process lifetime,
             # which is ideal for SQLite in development / single-worker deploys.
             poolclass=StaticPool,
-            echo=settings.DEBUG,   # Log SQL statements when DEBUG=True
+            echo=settings.SQLALCHEMY_ECHO,
         )
 
         # Enforce foreign-key constraints for SQLite (off by default)
@@ -66,7 +66,7 @@ def _build_engine():
             pool_size=5,           # Max persistent connections
             max_overflow=10,       # Extra connections allowed under load
             pool_recycle=1800,     # Recycle connections every 30 minutes
-            echo=settings.DEBUG,
+            echo=settings.SQLALCHEMY_ECHO,
         )
 
 
@@ -93,12 +93,16 @@ def get_db():
     """
     Yield a database session and ensure it is closed after the request,
     even if an exception occurs.
+
+    Commit on success so read-only requests end with COMMIT instead of an
+    implicit ROLLBACK on close (quieter logs; same semantics for SQLite).
     """
     db = SessionLocal()
     try:
         yield db
+        db.commit()
     except Exception:
-        db.rollback()   # Roll back on any unhandled exception
+        db.rollback()
         raise
     finally:
         db.close()

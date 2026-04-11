@@ -53,6 +53,7 @@ class WorkflowRun(Base):
     # Keeps status values bounded; avoids unbounded TEXT columns on MySQL.
     status = Column(String(32), default="PENDING", nullable=False)
     current_step = Column(String(128), nullable=True)
+    deployment_url = Column(String(2048), nullable=True)  # Store generated URL
 
     # FIX 1: timezone-aware utcnow via callable (not datetime.utcnow directly)
     created_at = Column(DateTime(timezone=True), default=_utcnow, nullable=False)

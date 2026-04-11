@@ -1,11 +1,30 @@
 """
 Platform Deployers - Integrations with various deployment platforms
 """
-import subprocess
 import os
+import re
 import shutil
-from typing import Dict, Optional
+import subprocess
 from abc import ABC, abstractmethod
+from typing import Dict, Optional
+
+
+def sanitize_vercel_project_name(name: str) -> str:
+    """
+    Vercel project names must be lowercase, <= 100 chars, and may only use
+    letters, digits, '.', '_', '-'. No '---' substring.
+    Repo slugs like 'Calculator_pro' fail without lowercasing.
+    """
+    raw = (name or "").strip().lower().removesuffix(".git")
+    if not raw:
+        return "my-app"
+    # Allowed set: a-z 0-9 . _ - ; collapse runs of hyphens (no '---').
+    slug = re.sub(r"[^a-z0-9._-]+", "-", raw)
+    slug = re.sub(r"-+", "-", slug).strip("-._")
+    if not slug:
+        return "my-app"
+    slug = slug[:100].rstrip("-._") or "my-app"
+    return slug
 
 
 class PlatformDeployer(ABC):
@@ -68,7 +87,9 @@ class VercelDeployer(PlatformDeployer):
                     "error": f"Vercel CLI check failed: {check.stderr.strip()}"
                 }
 
-            project_name = kwargs.get("project_name", "my-app")
+            project_name = sanitize_vercel_project_name(
+                str(kwargs.get("project_name") or "my-app")
+            )
 
             # Deploy current working directory (already chdir'd by PlatformDeployStep)
             # Do NOT pass github_url here — Vercel CLI deploys a local directory, not a URL.

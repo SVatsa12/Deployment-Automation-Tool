@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     # Database
     # ------------------------------------------------------------------
     DATABASE_URL: str = "sqlite:///./deployment.db"
+    # When False (default), SQL is not printed on every request — avoids looking
+    # "stuck" or broken due to ROLLBACK lines after read-only API calls.
+    SQLALCHEMY_ECHO: bool = False
 
     # ------------------------------------------------------------------
     # Server

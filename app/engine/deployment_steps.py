@@ -11,6 +11,30 @@ from app.models.step import BaseStep, StepResult
 from app.utils.platform_deployers import DeployerFactory
 
 
+def _git_missing_remote_branch(stderr: str) -> bool:
+    """True if git failed because the requested -b branch does not exist on the remote."""
+    if not stderr:
+        return False
+    low = stderr.lower()
+    return (
+        "remote branch" in low
+        and "not found" in low
+    ) or "could not find remote branch" in low
+
+
+def _read_checked_out_branch(clone_dir: str, git_env: dict) -> str | None:
+    """Best-effort name of the branch checked out in clone_dir."""
+    r = subprocess.run(
+        ["git", "-C", clone_dir, "branch", "--show-current"],
+        capture_output=True,
+        text=True,
+        timeout=30,
+        env=git_env,
+    )
+    name = (r.stdout or "").strip()
+    return name or None
+
+
 class GitCloneStep(BaseStep):
     """Clone GitHub repository to temporary directory"""
     
@@ -22,46 +46,61 @@ class GitCloneStep(BaseStep):
         self.github_url = github_url
         self.branch = branch
         self.clone_dir = None
+        self.resolved_branch: str | None = None
         self.output = ""
     
     def execute(self) -> StepResult:
         """Clone the repository"""
         try:
-            # Create temporary directory
-            self.clone_dir = tempfile.mkdtemp(prefix="deploy_")
-            
-            print(f"Cloning {self.github_url} (branch: {self.branch}) to {self.clone_dir}")
-            
-            # Clone repository with a non-interactive shallow clone to reduce hang risk.
             git_env = os.environ.copy()
             git_env["GIT_TERMINAL_PROMPT"] = "0"
             git_env["GCM_INTERACTIVE"] = "Never"
 
-            result = subprocess.run(
+            def run_clone(args: list[str]) -> subprocess.CompletedProcess:
+                return subprocess.run(
+                    ["git", "clone", *args, self.github_url, self.clone_dir],
+                    capture_output=True,
+                    text=True,
+                    timeout=300,
+                    env=git_env,
+                )
+
+            self.clone_dir = tempfile.mkdtemp(prefix="deploy_")
+            print(f"Cloning {self.github_url} (branch: {self.branch}) to {self.clone_dir}")
+
+            # Shallow single-branch clone for the requested ref (fast).
+            result = run_clone(
                 [
-                    "git", "clone",
                     "--depth", "1",
                     "--single-branch",
                     "--filter=blob:none",
                     "-b", self.branch,
-                    self.github_url,
-                    self.clone_dir,
-                ],
-                capture_output=True,
-                text=True,
-                timeout=300,  # 5 minute timeout
-                env=git_env,
+                ]
             )
-            
+
+            if result.returncode != 0 and _git_missing_remote_branch(result.stderr or ""):
+                print(
+                    f"Branch {self.branch!r} missing on remote; "
+                    "retrying clone using repository default branch."
+                )
+                shutil.rmtree(self.clone_dir, ignore_errors=True)
+                self.clone_dir = tempfile.mkdtemp(prefix="deploy_")
+                # No -b: checks out the remote's default branch (e.g. master vs main).
+                result = run_clone(["--depth", "1", "--filter=blob:none"])
+
             if result.returncode != 0:
                 self.output = f"Git clone failed: {result.stderr}"
                 print(self.output)
                 return StepResult.FAILED
-            
+
+            self.resolved_branch = _read_checked_out_branch(self.clone_dir, git_env) or self.branch
+            if self.resolved_branch != self.branch:
+                print(f"Checked out branch: {self.resolved_branch}")
+
             self.output = f"Successfully cloned to {self.clone_dir}"
             print(self.output)
             return StepResult.SUCCESS
-            
+
         except subprocess.TimeoutExpired:
             self.output = "Git clone timeout after 5 minutes"
             print(self.output)
@@ -117,9 +156,12 @@ class PlatformDeployStep(BaseStep):
                 
                 if deployment_result.get("success"):
                     self.deployment_url = deployment_result.get("deployment_url")
-                    self.output = deployment_result.get("message", "Deployment successful")
+                    msg = deployment_result.get("message", "Deployment successful")
+                    if self.deployment_url:
+                        self.output = f"{msg}. URL: {self.deployment_url}"
+                    else:
+                        self.output = msg
                     print(f"✓ {self.output}")
-                    print(f"URL: {self.deployment_url}")
                     return StepResult.SUCCESS
                 else:
                     self.output = f"Deployment failed: {deployment_result.get('error', 'Unknown error')}"
@@ -217,6 +259,11 @@ def update_step_context(steps: list, context: dict):
     """
     if len(steps) >= 1 and isinstance(steps[0], GitCloneStep):
         context["clone_dir"] = steps[0].clone_dir
+        resolved = getattr(steps[0], "resolved_branch", None)
+        if resolved:
+            context["branch"] = resolved
+            if len(steps) >= 2 and isinstance(steps[1], PlatformDeployStep):
+                steps[1].branch = resolved
     
     if len(steps) >= 2 and isinstance(steps[1], PlatformDeployStep):
         steps[1].clone_dir = context["clone_dir"]
