@@ -21,6 +21,7 @@ from app.engine.deployment_steps import (
 )
 from app.utils.github_analyzer import GitHubAnalyzer
 from app.utils.platform_deployers import DeployerFactory
+from app.services.shortener import ensure_short_link_for_run, short_urls_for_run_ids
 
 router = APIRouter(prefix="/api", tags=["workflows"])
 
@@ -41,6 +42,7 @@ class WorkflowRunResponse(BaseModel):
     status: str
     current_step: Optional[str]
     deployment_url: Optional[str] = None
+    short_url: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
@@ -115,6 +117,28 @@ def _update_run_deployment_url(workflow_run: WorkflowRun, db: Session) -> None:
             return
 
 
+def _workflow_run_response(run: WorkflowRun, db: Session) -> WorkflowRunResponse:
+    if run.deployment_url and run.id not in short_urls_for_run_ids(db, [run.id]):
+        ensure_short_link_for_run(db, run)
+    urls = short_urls_for_run_ids(db, [run.id])
+    return WorkflowRunResponse.model_validate(run).model_copy(
+        update={"short_url": urls.get(run.id)}
+    )
+
+
+def _workflow_run_responses(runs: List[WorkflowRun], db: Session) -> List[WorkflowRunResponse]:
+    ids = [r.id for r in runs]
+    urls = short_urls_for_run_ids(db, ids)
+    for r in runs:
+        if r.deployment_url and r.id not in urls:
+            ensure_short_link_for_run(db, r)
+    urls = short_urls_for_run_ids(db, ids)
+    return [
+        WorkflowRunResponse.model_validate(r).model_copy(update={"short_url": urls.get(r.id)})
+        for r in runs
+    ]
+
+
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -148,10 +172,12 @@ def create_workflow(workflow: WorkflowCreate, db: Session = Depends(get_db)):
         run_workflow(workflow_run, steps, db)
         db.refresh(workflow_run)
         _update_run_deployment_url(workflow_run, db)
+        if workflow_run.deployment_url:
+            ensure_short_link_for_run(db, workflow_run)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Workflow execution failed: {str(e)}")
 
-    return workflow_run
+    return _workflow_run_response(workflow_run, db)
 
 
 @router.get("/workflows/runs", response_model=List[WorkflowRunResponse])
@@ -164,7 +190,8 @@ def list_workflow_runs(
     query = db.query(WorkflowRun)
     if status:
         query = query.filter(WorkflowRun.status == status)
-    return query.order_by(WorkflowRun.created_at.desc()).limit(limit).all()
+    runs = query.order_by(WorkflowRun.created_at.desc()).limit(limit).all()
+    return _workflow_run_responses(runs, db)
 
 
 @router.get("/workflows/runs/{run_id}", response_model=WorkflowRunResponse)
@@ -173,7 +200,7 @@ def get_workflow_run(run_id: int, db: Session = Depends(get_db)):
     workflow_run = db.query(WorkflowRun).filter(WorkflowRun.id == run_id).first()
     if not workflow_run:
         raise HTTPException(status_code=404, detail="Workflow run not found")
-    return workflow_run
+    return _workflow_run_response(workflow_run, db)
 
 
 @router.get("/workflows/runs/{run_id}/steps", response_model=List[StepRunResponse])
@@ -211,7 +238,7 @@ def approve_workflow(
         workflow_run.status = "REJECTED"
         db.commit()
         db.refresh(workflow_run)
-        return workflow_run
+        return _workflow_run_response(workflow_run, db)
 
     # Mark the approval step as SUCCESS
     approval_step = (
@@ -231,10 +258,12 @@ def approve_workflow(
         run_workflow(workflow_run, steps, db)
         db.refresh(workflow_run)
         _update_run_deployment_url(workflow_run, db)
+        if workflow_run.deployment_url:
+            ensure_short_link_for_run(db, workflow_run)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Workflow resume failed: {str(e)}")
 
-    return workflow_run
+    return _workflow_run_response(workflow_run, db)
 
 
 @router.post("/workflows/runs/{run_id}/resume", response_model=WorkflowRunResponse)
@@ -255,10 +284,12 @@ def resume_workflow(run_id: int, db: Session = Depends(get_db)):
         run_workflow(workflow_run, steps, db)
         db.refresh(workflow_run)
         _update_run_deployment_url(workflow_run, db)
+        if workflow_run.deployment_url:
+            ensure_short_link_for_run(db, workflow_run)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Workflow resume failed: {str(e)}")
 
-    return workflow_run
+    return _workflow_run_response(workflow_run, db)
 
 
 @router.post("/analyze")
@@ -355,6 +386,10 @@ def run_deployment_workflow(
         if workflow_run.status == "SUCCESS" and not workflow_run.deployment_url:
             _update_run_deployment_url(workflow_run, db)
         db.commit()
+        db.refresh(workflow_run)
+        if workflow_run.deployment_url:
+            ensure_short_link_for_run(db, workflow_run)
+            db.commit()
 
         if workflow_run.deployment_url:
             print(f"Deployment successful! URL: {workflow_run.deployment_url}")
