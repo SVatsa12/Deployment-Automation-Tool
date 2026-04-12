@@ -1975,3 +1975,241 @@ FROM workflow_runs ORDER BY workflow_runs.created_at DESC
 2026-04-12T03:06:03 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
 2026-04-12T03:06:03 | INFO     | app.core.init_db | Database initialisation complete.
 2026-04-12T03:06:03 | INFO     | app.main | Database initialised successfully.
+2026-04-12T12:45:20 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T12:45:29 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T12:45:29 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T12:45:29 | INFO     | app.main | Database initialised successfully.
+2026-04-12T13:12:06 | INFO     | app.engine.sample_steps | Building project...
+2026-04-12T13:12:07 | INFO     | app.engine.sample_steps | Build completed successfully
+2026-04-12T13:12:07 | INFO     | app.engine.sample_steps | Running tests...
+2026-04-12T13:12:08 | INFO     | app.engine.sample_steps | All tests passed
+2026-04-12T13:12:08 | INFO     | app.engine.sample_steps | Workflow paused — awaiting manual approval.
+2026-04-12T13:12:08 | INFO     | app.engine.engine | Workflow paused at step 'approval' — awaiting approval.
+2026-04-12T13:13:54 | INFO     | app.engine.sample_steps | Deploying application...
+2026-04-12T13:13:55 | INFO     | app.engine.sample_steps | Deployment completed successfully. URL: https://demo-deploy-nova.vercel.app
+2026-04-12T13:13:55 | INFO     | app.engine.engine | Workflow 12 completed successfully.
+2026-04-12T13:22:04 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T13:22:06 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T13:22:06 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T13:22:06 | INFO     | app.main | Database initialised successfully.
+2026-04-12T13:22:43 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T13:22:44 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T13:22:44 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T13:22:44 | INFO     | app.main | Database initialised successfully.
+2026-04-12T13:22:55 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T13:22:56 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T13:22:56 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T13:22:56 | INFO     | app.main | Database initialised successfully.
+2026-04-12T13:33:22 | WARNING  | app.engine.engine | Step 'git_clone' failed (attempt 1/2): Git clone failed: Cloning into 'C:\Users\qshub\AppData\Local\Temp\deploy_jl6fdc0p'...
+fatal: repository 'https://github.com/vercel/examples/tree/main/solutions/static-site/' not found
+
+2026-04-12T13:33:22 | ERROR    | app.engine.engine | Step 'git_clone' exhausted all retries. Workflow 12 marked FAILED.
+2026-04-12T13:33:48 | INFO     | app.engine.sample_steps | Building project...
+2026-04-12T13:33:49 | INFO     | app.engine.sample_steps | Build completed successfully
+2026-04-12T13:33:49 | INFO     | app.engine.sample_steps | Running tests...
+2026-04-12T13:33:50 | INFO     | app.engine.sample_steps | All tests passed
+2026-04-12T13:33:50 | INFO     | app.engine.sample_steps | Workflow paused — awaiting manual approval.
+2026-04-12T13:33:50 | INFO     | app.engine.engine | Workflow paused at step 'approval' — awaiting approval.
+2026-04-12T13:33:58 | INFO     | app.engine.sample_steps | Deploying application...
+2026-04-12T13:33:59 | INFO     | app.engine.sample_steps | Verifying availability: https://vercel.com
+2026-04-12T13:34:00 | INFO     | app.engine.sample_steps | Deployment completed successfully. URL: https://vercel.com
+2026-04-12T13:34:00 | INFO     | app.engine.engine | Workflow 12 completed successfully.
+2026-04-12T13:34:29 | WARNING  | app.engine.engine | Step 'git_clone' failed (attempt 1/2): Git clone failed: Cloning into 'C:\Users\qshub\AppData\Local\Temp\deploy_e39vltvz'...
+fatal: repository 'https://github.com/vercel/examples/tree/main/solutions/static-site/' not found
+
+2026-04-12T13:34:29 | ERROR    | app.engine.engine | Step 'git_clone' exhausted all retries. Workflow 13 marked FAILED.
+2026-04-12T13:37:24 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T13:37:25 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T13:37:25 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T13:37:25 | INFO     | app.main | Database initialised successfully.
+2026-04-12T13:37:32 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T13:37:33 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T13:37:33 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T13:37:33 | INFO     | app.main | Database initialised successfully.
+2026-04-12T13:37:43 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T13:37:45 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T13:37:45 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T13:37:45 | INFO     | app.main | Database initialised successfully.
+2026-04-12T13:37:49 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T13:37:50 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T13:37:50 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T13:37:50 | INFO     | app.main | Database initialised successfully.
+2026-04-12T13:37:52 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T13:37:54 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T13:37:54 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T13:37:54 | INFO     | app.main | Database initialised successfully.
+2026-04-12T13:41:41 | WARNING  | app.engine.engine | Step 'platform_deploy' failed (attempt 1/3): Deployment reported success but URL verification failed (401): https://static-site-hlwgtl1rp-qshubhamq2-5934s-projects.vercel.app
+2026-04-12T13:41:41 | INFO     | app.engine.engine | Retrying step 'platform_deploy' (attempt 2)…
+2026-04-12T13:41:55 | WARNING  | app.engine.engine | Step 'platform_deploy' failed (attempt 2/3): Deployment failed: The "--name" option is deprecated (https://vercel.link/name-flag)
+Retrieving projectâ€¦
+Deploying qshubhamq2-5934s-projects/static-site
+Inspect: https://vercel.com/qshubhamq2-5934s-projects/static-site/5ETvEzva9gb2SzNjUuqCPzLDZVPU [5s]
+Production: https://static-site-ctuhw17j8-qshubhamq2-5934s-projects.vercel.app [5s]
+Building...
+Error: Unexpected error. Please try again later. ()
+2026-04-12T13:41:55 | ERROR    | app.engine.engine | Step 'platform_deploy' exhausted all retries. Workflow 14 marked FAILED.
+2026-04-12T13:42:23 | INFO     | app.engine.sample_steps | Building project...
+2026-04-12T13:42:24 | INFO     | app.engine.sample_steps | Build completed successfully
+2026-04-12T13:42:24 | INFO     | app.engine.sample_steps | Running tests...
+2026-04-12T13:42:25 | INFO     | app.engine.sample_steps | All tests passed
+2026-04-12T13:42:25 | INFO     | app.engine.sample_steps | Workflow paused — awaiting manual approval.
+2026-04-12T13:42:25 | INFO     | app.engine.engine | Workflow paused at step 'approval' — awaiting approval.
+2026-04-12T13:45:17 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T13:45:18 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T13:45:18 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T13:45:18 | INFO     | app.main | Database initialised successfully.
+2026-04-12T13:45:18 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T13:45:20 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T13:45:20 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T13:45:20 | INFO     | app.main | Database initialised successfully.
+2026-04-12T13:45:24 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T13:45:25 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T13:45:25 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T13:45:25 | INFO     | app.main | Database initialised successfully.
+2026-04-12T13:48:50 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T13:48:51 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T13:48:51 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T13:48:51 | INFO     | app.main | Database initialised successfully.
+2026-04-12T13:51:08 | WARNING  | app.engine.engine | Step 'platform_deploy' failed (attempt 1/3): Deployment failed: Error: unknown or unexpected option: --project
+2026-04-12T13:51:08 | INFO     | app.engine.engine | Retrying step 'platform_deploy' (attempt 2)…
+2026-04-12T13:51:09 | WARNING  | app.engine.engine | Step 'platform_deploy' failed (attempt 2/3): Deployment failed: Error: unknown or unexpected option: --project
+2026-04-12T13:51:09 | ERROR    | app.engine.engine | Step 'platform_deploy' exhausted all retries. Workflow 13 marked FAILED.
+2026-04-12T13:53:56 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T13:53:58 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T13:53:58 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T13:53:58 | INFO     | app.main | Database initialised successfully.
+2026-04-12T13:58:52 | WARNING  | app.engine.engine | Step 'platform_deploy' failed (attempt 1/3): Deployment failed: Retrieving project…
+Deploying qshubhamq2-5934s-projects/static-site
+Inspect: https://vercel.com/qshubhamq2-5934s-projects/static-site/HTMNcrZsYWbHP5ysNB9fwhxKtRqY [4s]
+Production: https://static-site-5yyg5ftrr-qshubhamq2-5934s-projects.vercel.app [4s]
+Building...
+Error: Unexpected error. Please try again later. ()
+Tip: Try a more unique project name to avoid naming collisions.
+(Last known URL: https://static-site-5yyg5ftrr-qshubhamq2-5934s-projects.vercel.app)
+2026-04-12T13:58:52 | INFO     | app.engine.engine | Retrying step 'platform_deploy' (attempt 2)…
+2026-04-12T13:59:08 | WARNING  | app.engine.engine | Step 'platform_deploy' failed (attempt 2/3): Deployment failed: Retrieving project…
+Deploying qshubhamq2-5934s-projects/static-site
+Inspect: https://vercel.com/qshubhamq2-5934s-projects/static-site/3XDpoVNCPzkJTkd2SWZ7XgGuGQab [4s]
+Production: https://static-site-19cqbd9s8-qshubhamq2-5934s-projects.vercel.app [4s]
+Building...
+Error: Unexpected error. Please try again later. ()
+Tip: Try a more unique project name to avoid naming collisions.
+(Last known URL: https://static-site-19cqbd9s8-qshubhamq2-5934s-projects.vercel.app)
+2026-04-12T13:59:08 | ERROR    | app.engine.engine | Step 'platform_deploy' exhausted all retries. Workflow 13 marked FAILED.
+2026-04-12T14:01:15 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T14:01:16 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T14:01:16 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T14:01:16 | INFO     | app.main | Database initialised successfully.
+2026-04-12T14:03:48 | WARNING  | app.engine.engine | Step 'platform_deploy' failed (attempt 1/3): Deployment reported success but URL verification failed (401): https://deploylvyjdurc-42bx6zxi7-qshubhamq2-5934s-projects.vercel.app
+2026-04-12T14:03:48 | INFO     | app.engine.engine | Retrying step 'platform_deploy' (attempt 2)…
+2026-04-12T14:04:02 | WARNING  | app.engine.engine | Step 'platform_deploy' failed (attempt 2/3): Deployment failed: Retrieving project…
+Deploying qshubhamq2-5934s-projects/deploy_lvyjdurc
+Inspect: https://vercel.com/qshubhamq2-5934s-projects/deploy_lvyjdurc/93VAT5tpQanTu8Ute8KwkF1E4Zim [5s]
+Production: https://deploylvyjdurc-qtc3z9y55-qshubhamq2-5934s-projects.vercel.app [5s]
+Building...
+Error: Unexpected error. Please try again later. ()
+This usually means Vercel's build system failed. A vercel.json was injected but the project may need a specific framework configuration.
+(Last known URL: https://deploylvyjdurc-qtc3z9y55-qshubhamq2-5934s-projects.vercel.app)
+2026-04-12T14:04:02 | ERROR    | app.engine.engine | Step 'platform_deploy' exhausted all retries. Workflow 14 marked FAILED.
+2026-04-12T14:05:15 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T14:05:16 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T14:05:16 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T14:05:16 | INFO     | app.main | Database initialised successfully.
+2026-04-12T14:05:41 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T14:05:42 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T14:05:42 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T14:05:42 | INFO     | app.main | Database initialised successfully.
+2026-04-12T14:08:16 | WARNING  | app.engine.engine | Step 'platform_deploy' failed (attempt 1/3): Deployment reported success but URL verification failed (401): https://express-certict6c-qshubhamq2-5934s-projects.vercel.app
+2026-04-12T14:08:16 | INFO     | app.engine.engine | Retrying step 'platform_deploy' (attempt 2)…
+2026-04-12T14:08:25 | WARNING  | app.engine.engine | Step 'platform_deploy' failed (attempt 2/3): Deployment reported success but URL verification failed (401): https://express-ifflpogin-qshubhamq2-5934s-projects.vercel.app
+2026-04-12T14:08:25 | ERROR    | app.engine.engine | Step 'platform_deploy' exhausted all retries. Workflow 13 marked FAILED.
+2026-04-12T14:08:33 | INFO     | app.engine.sample_steps | Building project...
+2026-04-12T14:08:34 | INFO     | app.engine.sample_steps | Build completed successfully
+2026-04-12T14:08:34 | INFO     | app.engine.sample_steps | Running tests...
+2026-04-12T14:08:35 | INFO     | app.engine.sample_steps | All tests passed
+2026-04-12T14:08:35 | INFO     | app.engine.sample_steps | Workflow paused — awaiting manual approval.
+2026-04-12T14:08:35 | INFO     | app.engine.engine | Workflow paused at step 'approval' — awaiting approval.
+2026-04-12T14:08:38 | INFO     | app.engine.sample_steps | Deploying application...
+2026-04-12T14:08:39 | INFO     | app.engine.sample_steps | Verifying availability: https://vercel.com
+2026-04-12T14:08:40 | INFO     | app.engine.sample_steps | Deployment completed successfully. URL: https://vercel.com
+2026-04-12T14:08:40 | INFO     | app.engine.engine | Workflow 13 completed successfully.
+2026-04-12T14:10:43 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T14:10:45 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T14:10:45 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T14:10:45 | INFO     | app.main | Database initialised successfully.
+2026-04-12T14:11:06 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T14:11:07 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T14:11:07 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T14:11:07 | INFO     | app.main | Database initialised successfully.
+2026-04-12T14:12:53 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T14:12:54 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T14:12:54 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T14:12:54 | INFO     | app.main | Database initialised successfully.
+2026-04-12T14:31:23 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T14:31:23 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T14:31:23 | INFO     | app.main | Database initialised successfully.
+2026-04-12T14:31:30 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T14:32:52 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T14:32:52 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T14:32:52 | INFO     | app.main | Database initialised successfully.
+2026-04-12T14:35:15 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T14:35:15 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T14:35:15 | INFO     | app.main | Database initialised successfully.
+2026-04-12T14:35:36 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T14:36:17 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T14:36:17 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T14:36:17 | INFO     | app.main | Database initialised successfully.
+2026-04-12T14:41:32 | INFO     | app.engine.engine | Workflow 14 completed successfully.
+2026-04-12T14:44:21 | INFO     | app.engine.engine | Workflow 15 completed successfully.
+2026-04-12T14:50:12 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T14:50:14 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T14:50:14 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T14:50:14 | INFO     | app.main | Database initialised successfully.
+2026-04-12T14:50:14 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T14:50:15 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T14:50:15 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T14:50:15 | INFO     | app.main | Database initialised successfully.
+2026-04-12T14:50:18 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T14:50:19 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T14:50:19 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T14:50:19 | INFO     | app.main | Database initialised successfully.
+2026-04-12T14:50:20 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T14:50:21 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T14:50:21 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T14:50:21 | INFO     | app.main | Database initialised successfully.
+2026-04-12T14:52:12 | INFO     | app.main | Shutting down Deployment Automation Tool.
+2026-04-12T14:52:13 | INFO     | app.main | Starting Deployment Automation Tool v1.0.0
+2026-04-12T14:52:13 | INFO     | app.core.init_db | Database initialisation complete.
+2026-04-12T14:52:13 | INFO     | app.main | Database initialised successfully.
+2026-04-12T14:54:08 | WARNING  | app.engine.engine | Step 'platform_deploy' failed (attempt 1/3): Deployment failed: Loading scopes…
+Searching for existing projects…
+> No framework detected. Default Project Settings:
+
+- Build Command: `npm run vercel-build` or `npm run build`
+- Development Command: None
+- Install Command: `yarn install`, `pnpm install`, `npm install`, or `bun install`
+- Output Directory: `public` if it exists, or `.`
+Error: Project names can be up to 100 characters long and must be lowercase. They can include letters, digits, and the following characters: '.', '_', '-'. However, they cannot contain the sequence '---'. (400)
+Learn More: https://vercel.com/docs/projects/overview#project-name
+2026-04-12T14:54:08 | INFO     | app.engine.engine | Retrying step 'platform_deploy' (attempt 2)…
+2026-04-12T14:54:10 | WARNING  | app.engine.engine | Step 'platform_deploy' failed (attempt 2/3): Deployment failed: Loading scopes…
+Searching for existing projects…
+> No framework detected. Default Project Settings:
+
+- Build Command: `npm run vercel-build` or `npm run build`
+- Development Command: None
+- Install Command: `yarn install`, `pnpm install`, `npm install`, or `bun install`
+- Output Directory: `public` if it exists, or `.`
+Error: Project names can be up to 100 characters long and must be lowercase. They can include letters, digits, and the following characters: '.', '_', '-'. However, they cannot contain the sequence '---'. (400)
+Learn More: https://vercel.com/docs/projects/overview#project-name
+2026-04-12T14:54:10 | ERROR    | app.engine.engine | Step 'platform_deploy' exhausted all retries. Workflow 16 marked FAILED.
+2026-04-12T14:55:35 | INFO     | app.engine.engine | Workflow 16 completed successfully.
+2026-04-12T18:07:45 | INFO     | app.engine.sample_steps | Building project...
+2026-04-12T18:07:46 | INFO     | app.engine.sample_steps | Build completed successfully
+2026-04-12T18:07:46 | INFO     | app.engine.sample_steps | Running tests...
+2026-04-12T18:07:47 | INFO     | app.engine.sample_steps | All tests passed
+2026-04-12T18:07:47 | INFO     | app.engine.sample_steps | Workflow paused — awaiting manual approval.
+2026-04-12T18:07:47 | INFO     | app.engine.engine | Workflow paused at step 'approval' — awaiting approval.
+2026-04-12T18:07:52 | INFO     | app.engine.sample_steps | Simulating deployment...
+2026-04-12T18:07:54 | INFO     | app.engine.sample_steps | Demo deployment simulation completed. This is a test workflow — no real deployment was made. Use 'Connect your repo' section to deploy to a real platform.
+2026-04-12T18:07:54 | INFO     | app.engine.engine | Workflow 17 completed successfully.

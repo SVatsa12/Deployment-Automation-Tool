@@ -9,6 +9,32 @@ from abc import ABC, abstractmethod
 from typing import Dict, Optional
 
 
+def _extract_vercel_deployment_url(stdout: str, stderr: str) -> Optional[str]:
+    """
+    Parse a deployment URL from Vercel CLI output.
+    The CLI prints ``Production: https://....vercel.app`` while progress goes to stderr.
+    """
+    combined = f"{stdout or ''}\n{stderr or ''}"
+    m = re.search(
+        r"Production:\s*(https://[^\s\[\]\u00a0]+)",
+        combined,
+        re.IGNORECASE,
+    )
+    if m:
+        return m.group(1).rstrip(").,]")
+    m = re.search(
+        r"(https://[a-z0-9][-a-z0-9.]*\.vercel\.app/?)",
+        combined,
+        re.IGNORECASE,
+    )
+    if m:
+        return m.group(1).rstrip("/")
+    lines = [ln.strip() for ln in (stdout or "").strip().splitlines() if ln.strip()]
+    if lines and lines[-1].startswith("http"):
+        return lines[-1].rstrip("/")
+    return None
+
+
 def sanitize_vercel_project_name(name: str) -> str:
     """
     Vercel project names must be lowercase, <= 100 chars, and may only use
@@ -52,15 +78,46 @@ class PlatformDeployer(ABC):
 class VercelDeployer(PlatformDeployer):
     """Deploy to Vercel"""
 
+    @staticmethod
+    def _prepare_prebuilt(project_dir: str) -> None:
+        """
+        Prepare the .vercel/output directory for a --prebuilt deployment.
+        This completely bypasses Vercel's build system by creating a
+        pre-built output structure. Vercel will serve the files as-is
+        without attempting any framework detection or build step.
+
+        Structure created:
+          .vercel/output/config.json   -> {"version": 3}
+          .vercel/output/static/       -> all project files copied here
+        """
+        import json
+
+        output_dir = os.path.join(project_dir, ".vercel", "output")
+        static_dir = os.path.join(output_dir, "static")
+        os.makedirs(static_dir, exist_ok=True)
+
+        # Write the output config
+        config_path = os.path.join(output_dir, "config.json")
+        with open(config_path, "w") as f:
+            json.dump({"version": 3}, f)
+
+        # Copy all project files into static/ (skip .vercel, .git, node_modules)
+        skip_dirs = {".vercel", ".git", "node_modules", "__pycache__"}
+        for item in os.listdir(project_dir):
+            if item in skip_dirs:
+                continue
+            src = os.path.join(project_dir, item)
+            dst = os.path.join(static_dir, item)
+            if os.path.isdir(src):
+                shutil.copytree(src, dst, dirs_exist_ok=True)
+            else:
+                shutil.copy2(src, dst)
+
     def deploy(self, github_url: str, branch: str = "main", **kwargs) -> Dict[str, any]:
         """
         Deploy to Vercel using Vercel CLI.
         - Must be called from the cloned repo directory (PlatformDeployStep handles os.chdir).
         - Requires: npm install -g vercel  AND  vercel login
-        
-        FIX 1: Use _find_cli() to locate 'vercel' or 'vercel.cmd' (Windows).
-        FIX 2: Deploy CWD, NOT a GitHub URL — Vercel CLI doesn't accept URLs as args.
-        FIX 3: Use shell=True on Windows so .cmd wrappers execute correctly.
         """
         try:
             vercel_cmd = self._find_cli("vercel", "vercel.cmd")
@@ -79,7 +136,9 @@ class VercelDeployer(PlatformDeployer):
                 [vercel_cmd, "--version"],
                 capture_output=True,
                 text=True,
-                shell=True  # Required on Windows for .cmd files
+                shell=True,
+                encoding="utf-8",
+                errors="replace",
             )
             if check.returncode != 0:
                 return {
@@ -87,17 +146,19 @@ class VercelDeployer(PlatformDeployer):
                     "error": f"Vercel CLI check failed: {check.stderr.strip()}"
                 }
 
-            project_name = sanitize_vercel_project_name(
-                str(kwargs.get("project_name") or "my-app")
-            )
+            # Prepare the .vercel/output/static structure so we can use --prebuilt.
+            # This completely bypasses Vercel's build system and avoids
+            # "Unexpected error" during framework auto-detection.
+            cwd = os.getcwd()
+            self._prepare_prebuilt(cwd)
 
-            # Deploy current working directory (already chdir'd by PlatformDeployStep)
-            # Do NOT pass github_url here — Vercel CLI deploys a local directory, not a URL.
+            # Deploy with --prebuilt: skips build, uploads pre-structured output directly.
             deployment_command = [
                 vercel_cmd,
-                "--yes",                   # Skip interactive prompts
-                "--prod",                  # Deploy to production
-                f"--name={project_name}",
+                "deploy",
+                "--yes",
+                "--prod",
+                "--prebuilt",
             ]
 
             result = subprocess.run(
@@ -105,24 +166,49 @@ class VercelDeployer(PlatformDeployer):
                 capture_output=True,
                 text=True,
                 timeout=300,
-                shell=True  # Required on Windows for .cmd files
+                shell=True,
+                encoding="utf-8",
+                errors="replace",
+            )
+
+            deployment_url = _extract_vercel_deployment_url(
+                result.stdout or "",
+                result.stderr or "",
             )
 
             if result.returncode == 0:
-                # Last non-empty line is typically the production deployment URL
-                lines = [l.strip() for l in result.stdout.strip().splitlines() if l.strip()]
-                deployment_url = lines[-1] if lines else "https://vercel.com/dashboard"
+                url = deployment_url or "https://vercel.com/dashboard"
                 return {
                     "success": True,
                     "platform": "Vercel",
-                    "deployment_url": deployment_url,
-                    "message": f"Successfully deployed to {deployment_url}"
+                    "deployment_url": url,
+                    "message": f"Successfully deployed to {url}",
                 }
-            else:
-                return {
-                    "success": False,
-                    "error": result.stderr.strip() or result.stdout.strip()
-                }
+
+            # Handle common failures with actionable tips
+            err_body = (result.stderr or "").strip() or (result.stdout or "").strip()
+
+            if "not a member of the team" in err_body or "attempted to deploy a commit" in err_body:
+                err_body = (
+                    "Authentication Error: The logged-in Vercel user does not have "
+                    "permission for this project.\n"
+                    "Fix: Run 'vercel login' to switch to the correct account, or "
+                    "add the user to your Vercel team in the Dashboard."
+                )
+            elif "Unexpected error" in err_body:
+                err_body += (
+                    "\nThis usually means Vercel's build system failed. "
+                    "A vercel.json was injected but the project may need "
+                    "a specific framework configuration."
+                )
+
+            if deployment_url:
+                err_body = f"{err_body}\n(Last known URL: {deployment_url})"
+
+            return {
+                "success": False,
+                "error": err_body,
+            }
 
         except subprocess.TimeoutExpired:
             return {"success": False, "error": "Vercel deployment timed out after 5 minutes"}

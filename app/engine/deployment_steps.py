@@ -8,6 +8,7 @@ import subprocess
 import tempfile
 from typing import Dict, Any
 from app.models.step import BaseStep, StepResult
+from app.utils.github_analyzer import GitHubAnalyzer
 from app.utils.platform_deployers import DeployerFactory
 
 
@@ -157,6 +158,30 @@ class PlatformDeployStep(BaseStep):
                 if deployment_result.get("success"):
                     self.deployment_url = deployment_result.get("deployment_url")
                     msg = deployment_result.get("message", "Deployment successful")
+                    
+                    # Verify URL if available — only fail on 404 (not found) or 5xx (server down).
+                    # 401/403 mean the server IS running but requires auth — that's a successful deploy.
+                    if self.deployment_url:
+                        import requests
+                        try:
+                            resp = requests.get(self.deployment_url, timeout=15, allow_redirects=True)
+                            if resp.status_code == 404:
+                                self.output = f"Deployment exists but returned 404 (not found): {self.deployment_url}"
+                                print(f"✗ {self.output}")
+                                return StepResult.FAILED
+                            elif resp.status_code >= 500:
+                                self.output = f"Deployment server error ({resp.status_code}): {self.deployment_url}"
+                                print(f"✗ {self.output}")
+                                return StepResult.FAILED
+                            # 200, 301, 302, 401, 403 etc. all mean the server IS running
+                        except requests.exceptions.ConnectionError:
+                            self.output = f"Deployment URL is unreachable: {self.deployment_url}"
+                            print(f"✗ {self.output}")
+                            return StepResult.FAILED
+                        except Exception:
+                            # Timeout or other network issue — don't fail the deployment for this
+                            pass
+                    
                     if self.deployment_url:
                         self.output = f"{msg}. URL: {self.deployment_url}"
                     else:
@@ -217,18 +242,34 @@ def create_deployment_workflow(github_url: str, platform_id: str,
     Returns:
         tuple: (steps_list, shared_context_dict)
     """
+    norm = GitHubAnalyzer.normalize_github_url_for_clone(github_url, default_branch=branch)
+    clone_url = norm["clone_url"] or github_url.strip()
+    clone_branch = norm["branch"] or branch
+    repo_subdir = norm["repo_subdir"]
+
+    if repo_subdir:
+        print(
+            f"GitHub URL normalized for clone: {clone_url!r} "
+            f"(branch={clone_branch!r}, deploy subdir={repo_subdir!r})"
+        )
+    elif clone_url != github_url.strip():
+        print(f"GitHub URL normalized for clone: {clone_url!r} (branch={clone_branch!r})")
+
     # Shared context between steps
     context = {
-        "github_url": github_url,
+        "github_url": clone_url,
+        "original_github_url": github_url.strip(),
         "platform_id": platform_id,
-        "branch": branch,
+        "branch": clone_branch,
         "project_name": project_name,
+        "repo_subdir": repo_subdir,
+        "clone_root": None,
         "clone_dir": None,
         "deployment_url": None
     }
     
     # Create workflow steps
-    clone_step = GitCloneStep(github_url, branch)
+    clone_step = GitCloneStep(clone_url, clone_branch)
     
     # Steps will share the clone directory
     steps = [clone_step]
@@ -237,8 +278,8 @@ def create_deployment_workflow(github_url: str, platform_id: str,
     # For now, create a placeholder that we'll update
     deploy_step = PlatformDeployStep(
         platform_id=platform_id,
-        github_url=github_url,
-        branch=branch,
+        github_url=clone_url,
+        branch=clone_branch,
         project_name=project_name
     )
     
@@ -257,19 +298,34 @@ def update_step_context(steps: list, context: dict):
         steps: List of workflow steps
         context: Shared context dictionary
     """
+    clone_root = None
     if len(steps) >= 1 and isinstance(steps[0], GitCloneStep):
-        context["clone_dir"] = steps[0].clone_dir
+        clone_root = steps[0].clone_dir
+        context["clone_root"] = clone_root
+        context["clone_dir"] = clone_root
         resolved = getattr(steps[0], "resolved_branch", None)
         if resolved:
             context["branch"] = resolved
             if len(steps) >= 2 and isinstance(steps[1], PlatformDeployStep):
                 steps[1].branch = resolved
+
+    deploy_cwd = clone_root
+    subdir = (context.get("repo_subdir") or "").strip().strip("/")
+    if clone_root and subdir:
+        candidate = os.path.normpath(os.path.join(clone_root, *subdir.split("/")))
+        if os.path.isdir(candidate):
+            deploy_cwd = candidate
+        else:
+            print(
+                f"Warning: expected subdirectory {subdir!r} not found at {candidate!r}; "
+                "deploying from repository root."
+            )
     
     if len(steps) >= 2 and isinstance(steps[1], PlatformDeployStep):
-        steps[1].clone_dir = context["clone_dir"]
+        steps[1].clone_dir = deploy_cwd
     
     if len(steps) >= 3 and isinstance(steps[2], CleanupStep):
-        steps[2].clone_dir = context["clone_dir"]
+        steps[2].clone_dir = clone_root
     
     # After deploy step, capture deployment URL
     if len(steps) >= 2 and isinstance(steps[1], PlatformDeployStep):

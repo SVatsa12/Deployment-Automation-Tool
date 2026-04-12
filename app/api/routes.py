@@ -1,7 +1,7 @@
 import re
 
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from pydantic import BaseModel, HttpUrl
 from datetime import datetime
@@ -43,6 +43,9 @@ class WorkflowRunResponse(BaseModel):
     current_step: Optional[str]
     deployment_url: Optional[str] = None
     short_url: Optional[str] = None
+    # From parent Workflow — required so the UI picks the correct pipeline (demo vs deployment).
+    name: Optional[str] = None
+    workflow_type: str = "demo"
     created_at: datetime
     updated_at: datetime
 
@@ -122,8 +125,13 @@ def _workflow_run_response(run: WorkflowRun, db: Session) -> WorkflowRunResponse
     if run.deployment_url and run.id not in urls:
         ensure_short_link_for_run(db, run)
         urls = short_urls_for_run_ids(db, [run.id])
+    wf = run.workflow
     return WorkflowRunResponse.model_validate(run).model_copy(
-        update={"short_url": urls.get(run.id)}
+        update={
+            "short_url": urls.get(run.id),
+            "name": wf.name if wf else None,
+            "workflow_type": wf.workflow_type if wf else "demo",
+        }
     )
 
 
@@ -135,7 +143,13 @@ def _workflow_run_responses(runs: List[WorkflowRun], db: Session) -> List[Workfl
             ensure_short_link_for_run(db, r)
     urls = short_urls_for_run_ids(db, ids)
     return [
-        WorkflowRunResponse.model_validate(r).model_copy(update={"short_url": urls.get(r.id)})
+        WorkflowRunResponse.model_validate(r).model_copy(
+            update={
+                "short_url": urls.get(r.id),
+                "name": r.workflow.name if r.workflow else None,
+                "workflow_type": r.workflow.workflow_type if r.workflow else "demo",
+            }
+        )
         for r in runs
     ]
 
@@ -188,7 +202,7 @@ def list_workflow_runs(
     db: Session = Depends(get_db),
 ):
     """List all workflow runs with optional status filter."""
-    query = db.query(WorkflowRun)
+    query = db.query(WorkflowRun).options(joinedload(WorkflowRun.workflow))
     if status:
         query = query.filter(WorkflowRun.status == status)
     runs = query.order_by(WorkflowRun.created_at.desc()).limit(limit).all()
@@ -198,7 +212,12 @@ def list_workflow_runs(
 @router.get("/workflows/runs/{run_id}", response_model=WorkflowRunResponse)
 def get_workflow_run(run_id: int, db: Session = Depends(get_db)):
     """Get details of a specific workflow run."""
-    workflow_run = db.query(WorkflowRun).filter(WorkflowRun.id == run_id).first()
+    workflow_run = (
+        db.query(WorkflowRun)
+        .options(joinedload(WorkflowRun.workflow))
+        .filter(WorkflowRun.id == run_id)
+        .first()
+    )
     if not workflow_run:
         raise HTTPException(status_code=404, detail="Workflow run not found")
     return _workflow_run_response(workflow_run, db)
@@ -268,7 +287,11 @@ def approve_workflow(
 
 
 @router.post("/workflows/runs/{run_id}/resume", response_model=WorkflowRunResponse)
-def resume_workflow(run_id: int, db: Session = Depends(get_db)):
+def resume_workflow(
+    run_id: int,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
     """Resume a failed or stopped workflow from the last successful step."""
     workflow_run = db.query(WorkflowRun).filter(WorkflowRun.id == run_id).first()
     if not workflow_run:
@@ -280,17 +303,59 @@ def resume_workflow(run_id: int, db: Session = Depends(get_db)):
             detail=f"Cannot resume workflow with status: {workflow_run.status}",
         )
 
-    steps = _demo_steps()
-    try:
-        run_workflow(workflow_run, steps, db)
-        db.refresh(workflow_run)
-        _update_run_deployment_url(workflow_run, db)
-        if workflow_run.deployment_url:
-            ensure_short_link_for_run(db, workflow_run)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Workflow resume failed: {str(e)}")
+    # Determine workflow type from parent Workflow
+    workflow = db.query(Workflow).filter(Workflow.id == workflow_run.workflow_id).first()
+    is_deployment = workflow and workflow.workflow_type == "deployment"
 
-    return _workflow_run_response(workflow_run, db)
+    if is_deployment:
+        # Re-create deployment steps from the original workflow description.
+        # Description format: "Deploying <github_url> to <platform_id>"
+        desc = workflow.description or ""
+        github_url = ""
+        platform_id = ""
+        # Parse: "Deploying https://github.com/user/repo to vercel"
+        m = re.match(r"Deploying\s+(\S+)\s+to\s+(\S+)", desc)
+        if m:
+            github_url = m.group(1)
+            platform_id = m.group(2)
+
+        if not github_url or not platform_id:
+            raise HTTPException(
+                status_code=400,
+                detail="Cannot resume deployment: missing github_url or platform_id in workflow metadata.",
+            )
+
+        project_name = github_url.rstrip("/").split("/")[-1] or "my-app"
+
+        # Run the deployment in the background (same as the deploy endpoint)
+        # The engine will skip steps that already have status SUCCESS.
+        background_tasks.add_task(
+            run_deployment_workflow,
+            workflow_run_id=workflow_run.id,
+            github_url=github_url,
+            platform_id=platform_id,
+            branch="main",
+            project_name=project_name,
+        )
+
+        # Mark as PENDING so the UI shows it's being retried
+        workflow_run.status = "PENDING"
+        db.commit()
+        db.refresh(workflow_run)
+        return _workflow_run_response(workflow_run, db)
+    else:
+        # Demo workflow — use demo steps
+        steps = _demo_steps()
+        try:
+            run_workflow(workflow_run, steps, db)
+            db.refresh(workflow_run)
+            _update_run_deployment_url(workflow_run, db)
+            if workflow_run.deployment_url:
+                ensure_short_link_for_run(db, workflow_run)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Workflow resume failed: {str(e)}")
+
+        return _workflow_run_response(workflow_run, db)
 
 
 @router.post("/analyze")
