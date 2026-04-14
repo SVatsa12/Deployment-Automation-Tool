@@ -14,9 +14,6 @@ from app.models.step import StepRun, BaseStep, StepResult
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Helper
-# ---------------------------------------------------------------------------
 
 def get_or_create_step_run(
     db: Session,
