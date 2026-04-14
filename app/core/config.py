@@ -47,10 +47,7 @@ class Settings(BaseSettings):
     # FIX 4: CORS origins — restrict in production via the .env file
     # e.g.  ALLOWED_ORIGINS=https://mydomain.com,https://app.mydomain.com
     ALLOWED_ORIGINS: Annotated[List[str], NoDecode] = ["*"]
-
-    # ------------------------------------------------------------------
     # Workflow / engine settings
-    # ------------------------------------------------------------------
     DEFAULT_MAX_RETRIES: int = 3
     WORKFLOW_TIMEOUT_SECONDS: int = 3600   # 1 hour
 

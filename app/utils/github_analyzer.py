@@ -7,7 +7,7 @@ import json
 import logging
 import os
 from typing import Dict, List, Optional
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse
 
 import requests
 
@@ -51,58 +51,6 @@ class GitHubAnalyzer:
             )
 
         return {"owner": parts[0], "repo": parts[1]}
-
-    @staticmethod
-    def normalize_github_url_for_clone(
-        url: str, default_branch: str = "main"
-    ) -> Dict[str, Optional[str]]:
-        """
-        Convert browser-style GitHub URLs into a clone URL plus optional in-repo path.
-
-        ``git clone`` does not accept ``/tree/branch/...`` or ``/blob/...`` paths; those
-        must be split into repository root, ref, and subdirectory (or file parent dir).
-
-        Returns:
-            clone_url: HTTPS URL of the repository root (no /tree/... suffix).
-            branch: Branch or tag to clone (from the URL, or ``default_branch``).
-            repo_subdir: Path inside the repo to deploy from, or None for repo root.
-        """
-        raw = url.strip()
-        branch = default_branch.strip() or "main"
-        repo_subdir: Optional[str] = None
-
-        if raw.startswith("git@github.com:"):
-            path_after = raw.split(":", 1)[1].removesuffix(".git")
-            segments = [unquote(s) for s in path_after.split("/") if s]
-            if len(segments) < 2:
-                return {"clone_url": raw, "branch": branch, "repo_subdir": None}
-            owner, repo = segments[0], segments[1].removesuffix(".git")
-            clone_url = f"https://github.com/{owner}/{repo}"
-            return {"clone_url": clone_url, "branch": branch, "repo_subdir": None}
-
-        parsed = urlparse(raw)
-        host = parsed.netloc.lower().removeprefix("www.")
-        if host != "github.com":
-            return {"clone_url": raw, "branch": branch, "repo_subdir": None}
-
-        segments = [unquote(s) for s in parsed.path.strip("/").split("/") if s]
-        if len(segments) < 2:
-            return {"clone_url": raw, "branch": branch, "repo_subdir": None}
-
-        owner, repo = segments[0], segments[1].removesuffix(".git")
-        clone_url = f"https://github.com/{owner}/{repo}"
-
-        if len(segments) > 2 and segments[2] == "tree" and len(segments) > 3:
-            branch = segments[3]
-            if len(segments) > 4:
-                repo_subdir = "/".join(segments[4:])
-        elif len(segments) > 2 and segments[2] == "blob" and len(segments) > 4:
-            branch = segments[3]
-            path_in_repo = "/".join(segments[4:])
-            parent = os.path.dirname(path_in_repo.replace("\\", "/"))
-            repo_subdir = parent if parent else None
-
-        return {"clone_url": clone_url, "branch": branch, "repo_subdir": repo_subdir}
 
     @staticmethod
     def _get(url: str) -> Optional[requests.Response]:
