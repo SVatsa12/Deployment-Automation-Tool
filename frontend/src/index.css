@@ -4,9 +4,8 @@
   --bg-color: #050505;
   --text-primary: #f0f0f0;
   --text-secondary: #a0a0a0;
-  --accent-1: #6366f1; /* Indigo */
-  --accent-2: #ec4899; /* Pink */
-  --accent-3: #8b5cf6; /* Violet */
+  --accent-1: #6366f1;
+  --accent-3: #8b5cf6; 
   --glass-bg: rgba(20, 20, 25, 0.4);
   --glass-border: rgba(255, 255, 255, 0.08);
 }
